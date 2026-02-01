@@ -13,8 +13,7 @@ const programs = [
   },
 ];
 
-for (const p of programs)
-  await db.program.upsert({ where: { slug: p.slug }, update: {}, create: p });
+for (const p of programs) await db.program.upsert({ where: { slug: p.slug }, update: {}, create: p });
 
 console.log("Seeded default programs");
 await db.$disconnect();
