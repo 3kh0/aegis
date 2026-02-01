@@ -1,0 +1,14 @@
+.nuxt
+.output
+.git
+.github
+node_modules
+.env
+.env.local
+.DS_Store
+*.md
+.vercel
+.vscode
+.idea
+dist
+coverage

@@ -1,0 +1,50 @@
+{
+  "name": "aegis",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "predev": "bunx prisma generate",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "clean": "nuxt cleanup",
+    "postinstall": "nuxt prepare && prisma generate",
+    "db:migrate": "bunx prisma migrate dev --name init",
+    "db:seed": "bunx prisma db seed",
+    "db:drop": "bunx prisma migrate reset",
+    "format": "prettier --write .",
+    "lint": "eslint . --fix"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.980.0",
+    "@nuxt/eslint": "^1.13.0",
+    "@nuxt/fonts": "^0.13.0",
+    "@nuxt/icon": "^2.2.1",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "@sentry/nuxt": "^10.38.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "eslint": "^9.39.2",
+    "marked": "^17.0.1",
+    "nprogress": "^0.2.0",
+    "nuxt": "^4.3.0",
+    "nuxt-auth-utils": "^0.5.28",
+    "prisma": "^7.3.0",
+    "tailwindcss": "^4.1.18",
+    "vue": "^3.5.27",
+    "vue-router": "^5.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@iconify-json/tabler": "^1.2.26",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1"
+  },
+  "packageManager": "bun@1.3.6",
+  "trustedDependencies": [
+    "@parcel/watcher",
+    "@sentry/cli",
+    "unrs-resolver"
+  ]
+}

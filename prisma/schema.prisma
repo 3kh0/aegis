@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  username    String?   @unique
+  hackClubId  String?   @unique
+  slackId     String?   @unique
+  role        UserRole  @default(USER)
+  verified    Boolean   @default(false)
+  description String?   @db.VarChar(300)
+  website     String?
+  github      String?
+  publicEmail  String?
+  blockedUntil DateTime?
+  blockReason  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  reports    Report[]
+  activities Activity[]
+  programs   ProgramMember[]
+  notificationPreferences NotificationPreference[]
+}
+
+enum UserRole {
+  USER
+  PROGRAM_ADMIN
+  GLOBAL_ADMIN
+}
+
+model ProgramMember {
+  id        String   @id @default(uuid())
+  userId    String
+  programId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programId])
+  @@index([userId])
+  @@index([programId])
+}
+
+model Report {
+  id           String       @id @default(uuid())
+  title        String
+  description  String
+  severity     Severity
+  status       ReportStatus @default(NEW)
+  participants Json         @default("[]")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  vulnType      String?
+  affectedAsset String?
+  assetUrl      String?
+  impact        String?
+  attachments   Json         @default("[]")
+
+  isUnlisted    Boolean      @default(false)
+  targetName    String?
+  targetUrl     String?
+
+  submittedBy   User       @relation(fields: [submittedById], references: [id])
+  submittedById String
+  program       Program?   @relation(fields: [programId], references: [id])
+  programId     String?
+  activities    Activity[]
+
+  @@index([submittedById])
+  @@index([programId])
+  @@index([id])
+}
+
+model Activity {
+  id        String       @id @default(uuid())
+  type      ActivityType
+  content   String?
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime     @default(now())
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId String
+
+  @@index([reportId])
+  @@index([authorId])
+}
+
+enum ActivityType {
+  SUBMITTED
+  COMMENT
+  STATUS_CHANGED
+  SEVERITY_CHANGED
+  TITLE_CHANGED
+  TRIAGE_JOINED
+  PROGRAM_CHANGED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  NEW
+  TRIAGED
+  NEEDS_MORE_INFO
+  RESOLVED
+  INFORMATIVE
+  DUPLICATE
+  SPAM
+}
+
+model Otp {
+  id             String    @id @default(uuid())
+  email          String
+  codeHash       String
+  magicToken     String    @unique
+  expiresAt      DateTime
+  createdAt      DateTime  @default(now())
+  consumedAt     DateTime?
+  failedAttempts Int       @default(0)
+
+  @@index([email])
+  @@index([expiresAt])
+}
+
+model Program {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  iconUrl     String?
+  description String
+  website     String?
+  content     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reports Report[]
+  members ProgramMember[]
+
+  @@index([slug])
+}
+
+model NotificationPreference {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  channel   String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, channel])
+  @@index([userId])
+}
