@@ -97,7 +97,8 @@ const items = computed(() => {
   if (!list.value) return [];
 
   return list.value.filter((r) => {
-    const open = r.status !== "RESOLVED";
+    const openStatuses = ["NEW", "TRIAGED", "NEEDS_MORE_INFO"];
+    const open = openStatuses.includes(r.status);
     const match = tab.value === "open" ? open : !open;
     const search = q.value === "" || r.title.toLowerCase().includes(q.value.toLowerCase());
     return match && search;
