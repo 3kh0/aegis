@@ -24,6 +24,10 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  pendingEmail       String?
+  pendingEmailToken  String?   @unique
+  pendingEmailExpiry DateTime?
+
   reports    Report[]
   activities Activity[]
   programs   ProgramMember[]

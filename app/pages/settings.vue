@@ -5,16 +5,38 @@
     </div>
 
     <div class="border border-border divide-y divide-border mb-8">
-      <div class="flex items-center justify-between p-4 hover:bg-zinc-900/50 transition-colors group">
-        <div class="flex items-center gap-3">
-          <Icon name="tabler:mail" size="20px" class="text-gray-400" />
-          <div>
-            <p class="font-medium group-hover:text-accent transition-colors">Email</p>
-            <p class="text-sm text-gray-500">Your email can not be changed</p>
+      <div class="p-4 hover:bg-zinc-900/50 transition-colors group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <Icon name="tabler:mail" size="20px" class="text-gray-400" />
+            <div>
+              <p class="font-medium group-hover:text-accent transition-colors">Email</p>
+              <p class="text-sm text-gray-500">All notifications are sent here</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="select-all text-gray-500">{{ user?.email }}</p>
+            <button class="text-accent hover:text-accent/80 text-sm cursor-pointer" @click="showEmailChange = !showEmailChange">
+              {{ showEmailChange ? "Cancel" : "Change" }}
+            </button>
           </div>
         </div>
-        <p class="select-all text-gray-500">{{ user?.email }}</p>
+        <div v-if="showEmailChange" class="mt-4 pl-8">
+          <form class="flex gap-2" @submit.prevent="changeEmail">
+            <input v-model="newEmail" type="email" required placeholder="my_new@email.com" class="flex-1 px-3 py-2 bg-black border border-border focus:outline-none focus:border-accent transition-colors" :disabled="emailLoading" />
+            <button type="submit" :disabled="emailLoading || !newEmail" class="px-4 py-2 bg-accent text-black font-medium hover:bg-accent/90 disabled:opacity-50 cursor-pointer">
+              <Spinner v-if="emailLoading" size="16px" />
+              <span v-else>Verify</span>
+            </button>
+          </form>
+          <p v-if="emailError" class="text-red-400 text-sm mt-2">{{ emailError }}</p>
+          <p v-if="emailSuccess" class="text-green-400 text-sm mt-2">Verification email sent! Check your inbox.</p>
+        </div>
+        
       </div>
+      <div v-if="ecError" class="p-4 bg-red-500/10 border border-red-500/30 text-red-400">
+      {{ ecError }}
+    </div>
 
       <NuxtLink :to="`/@${user?.username}`" class="flex items-center justify-between p-4 hover:bg-zinc-900/50 transition-colors group">
         <div class="flex items-center gap-3">
@@ -127,13 +149,42 @@ const slack = ref(slackData.value?.connected ?? false);
 const prefs = ref(prefsData.value ?? Object.fromEntries(notifTypes.map((n) => [n.key, { email: true }])));
 const loading = ref(false);
 
+const showEmailChange = ref(false);
+const newEmail = ref("");
+const emailLoading = ref(false);
+const emailError = ref<string | null>(null);
+const emailSuccess = ref(false);
+
+async function changeEmail() {
+  emailLoading.value = true;
+  emailError.value = null;
+  emailSuccess.value = false;
+  try {
+    await $fetch("/api/profile/email", { method: "POST", body: { email: newEmail.value } });
+    emailSuccess.value = true;
+    newEmail.value = "";
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    emailError.value = err.data?.message || "Failed to send verification email";
+  } finally {
+    emailLoading.value = false;
+  }
+}
+
 // Handle OAuth callback query params (client-side only)
 const slackError = ref<string | null>(null);
+const ecError = ref<string | null>(null);
 if (import.meta.client) {
   if (route.query.slack === "connected") slack.value = true;
   else if (route.query.slack === "error") {
     const reason = route.query.reason as string;
     slackError.value = errorMsgs[reason] || reason || "Unknown error";
+  }
+
+  if (route.query.ec === "invalid") {
+    ecError.value = "Invalid link. Please try again";
+  } else if (route.query.ec === "expired") {
+    ecError.value = "This link has expired. Please try again.";
   }
 }
 
