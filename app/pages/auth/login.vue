@@ -1,5 +1,8 @@
 <template>
   <div class="max-w-lg mx-auto px-4 py-16">
+    <div v-if="emailChange" class="mb-4 bg-surface border border-green-500/30 text-green-400 text-center">
+      <div class="p-4 bg-green-500/10">Your email has been changed successfully. Please log in with your new email.</div>
+    </div>
     <div class="bg-surface border border-border p-8">
       <h1 class="text-2xl mb-6 font-semibold text-center">Welcome to Aegis</h1>
       <p class="text-gray-400 text-center mb-6">Let's get you started</p>
@@ -39,13 +42,15 @@
 const { user } = useUserSession();
 if (user.value) navigateTo("/dashboard");
 
+const route = useRoute();
+const emailChange = computed(() => route.query.ec === "true");
+
 const { busy, err, run } = useApi();
 
 const email = ref("");
 const hcBusy = ref(false);
 
 async function sendOtp() {
-  const route = useRoute();
   const res = await run(() =>
     $fetch("/api/auth/send-otp", {
       method: "POST",
@@ -64,7 +69,6 @@ async function sendOtp() {
 }
 
 function hcAuth() {
-  const route = useRoute();
   hcBusy.value = true;
   let url = "/api/auth/hackclub";
   const to = route.query.to;
