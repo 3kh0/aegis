@@ -107,6 +107,9 @@ export default defineNuxtConfig({
     externals: {
       traceInclude: ["./server/generated/prisma"],
     },
+    experimental: {
+      database: true,
+    },
   },
 
   sentry: {
