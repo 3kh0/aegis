@@ -32,11 +32,10 @@
           <p v-if="emailError" class="text-red-400 text-sm mt-2">{{ emailError }}</p>
           <p v-if="emailSuccess" class="text-green-400 text-sm mt-2">Verification email sent! Check your inbox.</p>
         </div>
-        
       </div>
       <div v-if="ecError" class="p-4 bg-red-500/10 border border-red-500/30 text-red-400">
-      {{ ecError }}
-    </div>
+        {{ ecError }}
+      </div>
 
       <NuxtLink :to="`/@${user?.username}`" class="flex items-center justify-between p-4 hover:bg-zinc-900/50 transition-colors group">
         <div class="flex items-center gap-3">

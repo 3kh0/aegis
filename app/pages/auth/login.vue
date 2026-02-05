@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-lg mx-auto px-4 py-16">
     <div v-if="emailChange" class="mb-4 bg-surface border border-green-500/30 text-green-400 text-center">
-      <div class=" p-4 bg-green-500/10 ">Your email has been changed successfully. Please log in with your new email.</div>
+      <div class="p-4 bg-green-500/10">Your email has been changed successfully. Please log in with your new email.</div>
     </div>
     <div class="bg-surface border border-border p-8">
       <h1 class="text-2xl mb-6 font-semibold text-center">Welcome to Aegis</h1>
