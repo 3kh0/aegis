@@ -28,7 +28,7 @@
     "eslint": "^9.39.2",
     "marked": "^17.0.1",
     "nprogress": "^0.2.0",
-    "nuxt": "^4.3.0",
+    "nuxt": "^4.3.1",
     "nuxt-auth-utils": "^0.5.28",
     "prisma": "^7.3.0",
     "tailwindcss": "^4.1.18",
