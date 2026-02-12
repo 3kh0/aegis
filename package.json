@@ -22,7 +22,7 @@
     "@nuxt/fonts": "^0.13.0",
     "@nuxt/icon": "^2.2.1",
     "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/client": "^7.4.0",
     "@sentry/nuxt": "^10.38.0",
     "@tailwindcss/vite": "^4.1.18",
     "eslint": "^10.0.0",
