@@ -13,7 +13,9 @@ export default defineEventHandler(async (event) => {
       const found = await prisma.user.findUnique({ where: { id: s.user.id }, select: { id: true, role: true } });
       if (found) u = found;
     }
-  } catch { /* for our anons */ }
+  } catch {
+    /* for our anons */
+  }
 
   if (!u) {
     const r = await prisma.report.findUnique({
