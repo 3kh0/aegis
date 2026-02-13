@@ -27,7 +27,6 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2 space-y-6">
         <Loading v-if="statsPending" />
 
@@ -61,58 +60,6 @@
 
         <DashboardTable v-else-if="data" :reports="data.reports" :page="data.page" :pages="data.pages" :total="data.total" @page="filters.page = $event" />
       </div>
-
-      <div class="space-y-6">
-        <div class="border border-border p-6">
-          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Icon name="tabler:users" size="20px" />
-            Program Members
-          </h2>
-          <p class="text-sm text-gray-400 mb-4">Members can manage reports and settings for this program.</p>
-
-          <div class="flex gap-2 mb-4">
-            <input v-model="newMember" type="text" placeholder="Email or username" class="flex-1 px-3 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors text-sm" @keyup.enter="addMember()" />
-            <button type="button" :disabled="memberBusy || !newMember.trim()" class="px-3 py-2 bg-accent text-black font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 text-sm" @click="addMember()">
-              <Icon v-if="memberBusy" name="tabler:loader-2" size="16px" class="animate-spin" />
-              <Icon v-else name="tabler:plus" size="16px" />
-              Add
-            </button>
-          </div>
-
-          <div v-if="confirmNew" class="border border-warning/50 bg-warning/10 p-3 mb-4 text-sm">
-            <p class="text-warning mb-2 flex items-center">
-              <Icon name="tabler:alert-triangle" size="16px" class="mr-1" />
-              <span
-                >No account exists for <strong>{{ pendingEmail }}</strong></span
-              >
-            </p>
-            <p class="text-white mb-3">This means we will send them a email to sign up. Double check to make sure this is the correct email.</p>
-            <div class="flex gap-2">
-              <button type="button" :disabled="memberBusy" class="px-3 py-1.5 bg-warning text-black font-medium text-sm" @click="confirmAddNew">Invite anyway</button>
-              <button type="button" :disabled="memberBusy" class="px-3 py-1.5 border border-border text-gray-400 text-sm" @click="cancelAddNew">Cancel</button>
-            </div>
-          </div>
-
-          <div v-if="memberErr" class="text-danger text-sm mb-4">{{ memberErr }}</div>
-
-          <Loading v-if="membersPending" />
-
-          <div v-else-if="!members?.length" class="text-gray-500 text-sm">No members yet.</div>
-
-          <div v-else class="space-y-2">
-            <div v-for="m in members" :key="m.id" class="flex items-center justify-between p-3 border border-border">
-              <div class="min-w-0">
-                <p class="font-medium truncate">{{ m.username || m.email }}</p>
-                <p v-if="m.username" class="text-gray-500 text-xs truncate">{{ m.email }}</p>
-              </div>
-              <button type="button" class="text-gray-400 hover:text-danger transition-colors shrink-0 ml-2" @click="delMember(m.id)">
-                <Icon name="tabler:x" size="18px" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -182,65 +129,4 @@ const { data, pending: reportsPending } = await useFetch(() => `/api/programs/${
   query,
   watch: [query],
 });
-
-const { data: members, pending: membersPending, refresh: refreshMembers } = await useFetch<Member[]>(() => `/api/programs/${slug.value}/members`);
-
-const newMember = ref("");
-const memberBusy = ref(false);
-const memberErr = ref("");
-const confirmNew = ref(false);
-const pendingEmail = ref("");
-
-async function addMember(force = false) {
-  const q = newMember.value.trim();
-  if (!q) return;
-
-  memberBusy.value = true;
-  memberErr.value = "";
-  confirmNew.value = false;
-
-  try {
-    await $fetch(`/api/programs/${slug.value}/members`, {
-      method: "POST",
-      body: { emailOrUsername: q, force },
-    });
-    newMember.value = "";
-    pendingEmail.value = "";
-    await refreshMembers();
-  } catch (e: unknown) {
-    const err = e as { data?: { data?: { needsConfirm?: boolean }; message?: string } };
-    if (err.data?.data?.needsConfirm) {
-      confirmNew.value = true;
-      pendingEmail.value = q;
-      memberErr.value = "";
-    } else {
-      memberErr.value = err.data?.message || "Failed to add member";
-    }
-  } finally {
-    memberBusy.value = false;
-  }
-}
-
-function confirmAddNew() {
-  addMember(true);
-}
-
-function cancelAddNew() {
-  confirmNew.value = false;
-  pendingEmail.value = "";
-}
-
-async function delMember(id: string) {
-  try {
-    const res = await $fetch<{ ok: boolean; demoted: boolean }>(`/api/programs/${slug.value}/members/${id}`, { method: "DELETE" });
-    if (res.demoted && id === user.value?.id) {
-      await fetchSession();
-      return navigateTo("/dashboard");
-    }
-    await refreshMembers();
-  } catch (e: unknown) {
-    const err = e as { data?: { message?: string } };
-    memberErr.value = err.data?.message || "Failed to remove member";
-  }
-}
 </script>
