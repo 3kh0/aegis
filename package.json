@@ -21,8 +21,8 @@
     "@nuxt/eslint": "^1.15.0",
     "@nuxt/fonts": "^0.13.0",
     "@nuxt/icon": "^2.2.1",
-    "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/client": "^7.4.0",
     "@sentry/nuxt": "^10.38.0",
     "@tailwindcss/vite": "^4.1.18",
     "eslint": "^10.0.0",
@@ -30,7 +30,7 @@
     "nprogress": "^0.2.0",
     "nuxt": "^4.3.1",
     "nuxt-auth-utils": "^0.5.28",
-    "prisma": "^7.3.0",
+    "prisma": "^7.4.0",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.27",
     "vue-router": "^5.0.2",
@@ -47,7 +47,10 @@
   "packageManager": "bun@1.3.6",
   "trustedDependencies": [
     "@parcel/watcher",
+    "@prisma/engines",
     "@sentry/cli",
+    "esbuild",
+    "prisma",
     "unrs-resolver"
   ]
 }
