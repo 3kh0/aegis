@@ -1,17 +1,17 @@
 <template>
-  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-    <div class="flex border border-border overflow-x-auto scrollbar-hidden">
+  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
+    <div class="flex flex-1 border border-border overflow-x-auto scrollbar-hidden">
       <button v-for="s in statuses" :key="s.value" :class="['px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap', status === s.value ? 'bg-accent text-black' : 'text-gray-400 hover:text-white']" @click="emit('status', s.value)">
         {{ s.label }}
       </button>
     </div>
 
-    <select v-model="sev" class="px-3 py-2 h-9 bg-transparent border border-border text-white focus:outline-none focus:border-accent" @change="emit('severity', sev)">
+    <select v-model="sev" class="px-3 py-2 h-9 bg-transparent border border-border text-sm font-medium text-white focus:outline-none focus:border-accent" @change="emit('severity', sev)">
       <option value="">All Severities</option>
       <option v-for="sv in severities" :key="sv" :value="sv">{{ sv }}</option>
     </select>
 
-    <select v-if="programs?.length" v-model="prog" class="px-3 py-2 h-9 bg-transparent border border-border text-sm text-white focus:outline-none focus:border-accent" @change="emit('program', prog)">
+    <select v-if="programs?.length" v-model="prog" class="px-3 py-2 h-9 bg-transparent border border-border text-sm font-medium text-gray-400 focus:outline-none focus:border-accent" @change="emit('program', prog)">
       <option value="">All Programs</option>
       <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.title }}</option>
     </select>
