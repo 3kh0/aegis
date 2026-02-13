@@ -62,7 +62,9 @@
               <ReportMarkdown :content="report.adminSummary" />
             </div>
             <div v-if="report.reporterSummary">
-              <h3 class="text-sm font-medium text-gray-400 mb-2">Summary from the reporter, <NuxtLink :to="`/@${report.submittedBy?.username}`" class="text-accent hover:underline">{{ report.submittedBy?.username || "Unknown" }}</NuxtLink></h3>
+              <h3 class="text-sm font-medium text-gray-400 mb-2">
+                Summary from the reporter, <NuxtLink :to="`/@${report.submittedBy?.username}`" class="text-accent hover:underline">{{ report.submittedBy?.username || "Unknown" }}</NuxtLink>
+              </h3>
               <ReportMarkdown :content="report.reporterSummary" />
             </div>
             <p v-if="!report.adminSummary && !report.reporterSummary" class="text-gray-500 italic">No summaries have been provided yet... One should come along soon.</p>
@@ -149,15 +151,9 @@
               </div>
               <Badge v-else type="status" :value="report.status" />
 
-              <span v-if="report.disclosureType === 'FULL'" class="px-2 py-1 rounded text-xs font-medium bg-accent/20 text-accent flex items-center gap-1">
-                <Icon name="tabler:world" size="14" /> Publicly Disclosed
-              </span>
-              <span v-else-if="report.disclosureType === 'SUMMARIZED'" class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 flex items-center gap-1">
-                <Icon name="tabler:file-text" size="14" /> Summary Disclosed
-              </span>
-              <button v-else-if="report.access?.canDisclose" class="px-2 py-1 rounded text-xs font-medium bg-surface-elevated text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors" @click="disclosureOpen = true">
-                <Icon name="tabler:world" size="14" /> Disclose
-              </button>
+              <span v-if="report.disclosureType === 'FULL'" class="px-2 py-1 rounded text-xs font-medium bg-accent/20 text-accent flex items-center gap-1"> <Icon name="tabler:world" size="14" /> Publicly Disclosed </span>
+              <span v-else-if="report.disclosureType === 'SUMMARIZED'" class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 flex items-center gap-1"> <Icon name="tabler:file-text" size="14" /> Summary Disclosed </span>
+              <button v-else-if="report.access?.canDisclose" class="px-2 py-1 rounded text-xs font-medium bg-surface-elevated text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors" @click="disclosureOpen = true"><Icon name="tabler:world" size="14" /> Disclose</button>
             </div>
           </div>
 
@@ -259,7 +255,7 @@
         <div v-if="report.disclosureType === 'SUMMARIZED' && (report.access?.isOwner || report.access?.isProgramAdmin || report.access?.isGlobalAdmin)" class="bg-surface border border-border p-6 mb-8">
           <h3 class="text-lg font-bold font-display mb-4">Disclosure Summary</h3>
           <p class="text-gray-400 text-sm mb-4">{{ report.access?.isOwner ? "Write your public summary of this report as the reporter." : "Write the program's public summary for this disclosed report." }}</p>
-          <div v-if="(report.access?.isOwner ? report.reporterSummary : report.adminSummary)" class="mb-4 p-4 bg-surface-elevated border border-border">
+          <div v-if="report.access?.isOwner ? report.reporterSummary : report.adminSummary" class="mb-4 p-4 bg-surface-elevated border border-border">
             <h4 class="text-sm font-medium text-gray-400 mb-2">Current Summary</h4>
             <ReportMarkdown :content="(report.access?.isOwner ? report.reporterSummary : report.adminSummary)!" />
           </div>
