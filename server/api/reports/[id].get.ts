@@ -1,20 +1,35 @@
 import { getReportWithAccessCheck, isAdmin, isGlobalAdmin, parseParticipants } from "../../utils/permissions";
-import { getUser, requireParam } from "../../utils/api";
+import { requireParam } from "../../utils/api";
 import { prisma } from "../../../prisma/db";
 
 export default defineEventHandler(async (event) => {
   const id = requireParam(event, "id");
-  const u = await getUser(event);
 
-  const result = await getReportWithAccessCheck(id, u.id, u.role);
+  let u: { id: string; role: string } | null = null;
+  try {
+    const s = await getUserSession(event);
+    if (s?.user?.id) {
+      const found = await prisma.user.findUnique({ where: { id: s.user.id }, select: { id: true, role: true } });
+      if (found) u = found;
+    }
+  } catch {}
 
-  if (!result) {
-    throw createError({ status: 404, message: "Report not found" });
+  if (!u) {
+    const r = await prisma.report.findUnique({
+      where: { id },
+      include: { submittedBy: true, program: true, activities: { include: { author: true }, orderBy: { createdAt: "asc" } } },
+    });
+    if (!r || !r.disclosureType) throw createError({ status: 404, message: "Report not found" });
+    return returnDisclosed(r);
   }
+
+  const result = await getReportWithAccessCheck(id, u.id, u.role as any);
+  if (!result) throw createError({ status: 404, message: "Report not found" });
 
   const { report, access } = result;
 
   if (!access.canView) {
+    if (report.disclosureType) return returnDisclosed(report);
     throw createError({ status: 403, message: "Access denied" });
   }
 
@@ -71,6 +86,42 @@ export default defineEventHandler(async (event) => {
     participants,
     activities,
     attachments: report.attachments,
+    disclosureType: report.disclosureType,
+    disclosedAt: report.disclosedAt,
+    adminSummary: report.adminSummary,
+    reporterSummary: report.reporterSummary,
     access,
   };
 });
+
+function returnDisclosed(report: any) {
+  const base = {
+    id: report.id,
+    title: report.title,
+    severity: report.severity,
+    status: report.status,
+    createdAt: report.createdAt,
+    submittedBy: { username: report.submittedBy.username, verified: report.submittedBy.verified },
+    program: report.program ? { slug: report.program.slug, title: report.program.title } : null,
+    disclosureType: report.disclosureType,
+    disclosedAt: report.disclosedAt,
+    disclosed: true,
+    access: {
+      canView: false, canViewDetails: false, canTriage: false, canChangeStatus: false,
+      canChangeSeverity: false, canReassignProgram: false, canDisclose: false,
+      isOwner: false, isAdmin: false, isGlobalAdmin: false, isProgramAdmin: false,
+      isTriage: false, needsBreakGlass: false,
+    },
+  };
+
+  if (report.disclosureType === "FULL") {
+    const activities = report.activities?.map((a: any) => ({
+      id: a.id, type: a.type, content: a.content, oldValue: a.oldValue, newValue: a.newValue,
+      createdAt: a.createdAt,
+      author: { username: a.author.username, isAdmin: isAdmin(a.author.role), isGlobalAdmin: isGlobalAdmin(a.author.role), isOP: a.author.id === report.submittedById },
+    })) || [];
+    return { ...base, description: report.description, activities, attachments: report.attachments };
+  }
+
+  return { ...base, adminSummary: report.adminSummary, reporterSummary: report.reporterSummary };
+}
