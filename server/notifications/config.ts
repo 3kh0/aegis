@@ -66,6 +66,12 @@ export const notifications: Record<string, Config> = {
     subject: (c) => `You've been invited to ${c.program?.title}`,
     url: (c) => `${c.baseUrl}/admin/programs/${c.program?.slug}`,
   },
+  DISCLOSURE_SET: {
+    recipients: "report_participants",
+    message: (c) => `${c.actor} disclosed the report "${c.report?.title}".`,
+    subject: (c) => `Report disclosed: ${c.report?.title}`,
+    url: rUrl,
+  },
 };
 
 export type NotificationType = keyof typeof notifications;
