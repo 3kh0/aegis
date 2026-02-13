@@ -1,62 +1,55 @@
 <template>
-  <div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-4">
-        <img v-if="program?.iconUrl" :src="program.iconUrl" class="w-12 h-12 object-contain" />
-        <div v-else class="w-12 h-12 bg-surface-elevated flex items-center justify-center">
-          <Icon name="tabler:building" size="24px" class="text-gray-500" />
-        </div>
-        <div>
-          <h1 class="text-3xl font-bold">{{ program?.title }}</h1>
-          <p class="text-gray-400 mt-1">Program Dashboard</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <NuxtLink :to="`/${slug}`" class="px-4 py-2 border border-border text-gray-400 hover:text-white hover:border-accent transition-colors flex items-center gap-2">
-          <Icon name="tabler:external-link" size="18px" />
-          View Public Page
-        </NuxtLink>
-        <a :href="`/api/programs/${slug}/reports/export`" class="px-4 py-2 border border-border text-gray-400 hover:text-white hover:border-accent transition-colors flex items-center gap-2">
-          <Icon name="tabler:download" size="18px" />
-          Export
-        </a>
-      </div>
-    </div>
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Editing {{ form.title }}</h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-2 space-y-6">
-        <Loading v-if="statsPending" />
+    <Loading v-if="loading" />
 
-        <template v-else-if="stats">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <DashboardStat icon="tabler:file-text" label="Total Reports" :value="stats.total" />
-            <DashboardStat icon="tabler:clock" label="Last 7 Days" :value="stats.recent" />
-            <DashboardStat icon="tabler:alert-circle" label="Open" :value="openCount" />
-            <DashboardStat icon="tabler:check" label="Resolved" :value="stats.status.RESOLVED || 0" />
+    <div v-else>
+      <form class="space-y-4 border border-border p-6 mb-6" @submit.prevent="save">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Title *</label>
+            <input v-model="form.title" type="text" required placeholder="Acme Corp" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors" />
           </div>
-        </template>
-
-        <div>
-          <DashboardFilters
-            :status="filters.status"
-            :severity="filters.severity"
-            :q="filters.q"
-            @status="
-              filters.status = $event;
-              filters.page = 1;
-            "
-            @severity="
-              filters.severity = $event;
-              filters.page = 1;
-            "
-            @search="onSearch"
-          />
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Slug *</label>
+            <input v-model="form.slug" type="text" required placeholder="acme-corp" pattern="[a-z0-9\-]+" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors" />
+            <p class="text-xs text-gray-500 mt-1">URL path: /{{ form.slug || "slug" }}</p>
+          </div>
         </div>
 
-        <Loading v-if="reportsPending" />
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Short Description *</label>
+          <input v-model="form.description" type="text" required maxlength="500" placeholder="A brief description of the program" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors" />
+        </div>
 
-        <DashboardTable v-else-if="data" :reports="data.reports" :page="data.page" :pages="data.pages" :total="data.total" @page="filters.page = $event" />
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Icon URL</label>
+            <input v-model="form.iconUrl" type="url" placeholder="https://example.com/icon.png" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Website</label>
+            <input v-model="form.website" type="url" placeholder="https://example.com" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Content (Markdown)</label>
+          <textarea v-model="form.content" rows="8" placeholder="## Scope&#10;&#10;List your in-scope assets here...&#10;&#10;## Rules&#10;&#10;- No automated scanning&#10;- Report responsibly" class="w-full px-4 py-2 bg-transparent border border-border text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-colors resize-y" />
+        </div>
+
+        <div v-if="err" class="text-danger text-sm">{{ err }}</div>
+
+        <div class="flex items-center gap-4">
+          <button type="submit" :disabled="busy" class="px-6 py-2 bg-accent text-black font-medium transition-colors flex items-center gap-2 disabled:opacity-50">
+            <Icon v-if="busy" name="tabler:loader-2" size="18px" class="animate-spin" />
+            <Icon v-else name="tabler:check" size="18px" />
+            Save Changes
+          </button>
+          <NuxtLink :to="`/admin/programs/${slug}`" class="px-6 py-2 border border-border text-gray-400 hover:text-white transition-colors">Cancel</NuxtLink>
+        </div>
+      </form>
 
       <div class="space-y-6">
         <div class="border border-border p-6">
@@ -91,7 +84,7 @@
 
           <div v-if="memberErr" class="text-danger text-sm mb-4">{{ memberErr }}</div>
 
-          <Loading v-if="membersPending" />
+          <Loading v-if="mpending" />
 
           <div v-else-if="!members?.length" class="text-gray-500 text-sm">No members yet.</div>
 
@@ -119,67 +112,54 @@ definePageMeta({
 
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
-const { user, fetch: fetchSession } = useUserSession();
 
-interface Program {
-  id: string;
-  title: string;
-  iconUrl: string | null;
-}
+const { busy, err, run } = useApi();
+const loading = ref(true);
 
-interface Stats {
-  total: number;
-  recent: number;
-  status: Record<string, number>;
-  severity: Record<string, number>;
-}
-
-interface Member {
-  id: string;
-  email: string;
-  username: string | null;
-  joinedAt?: string;
-}
-
-const { data: program } = await useFetch<Program>(`/api/programs/${slug.value}`);
-
-const { data: stats, pending: statsPending } = await useFetch<Stats>(() => `/api/programs/${slug.value}/stats`);
-
-const openCount = computed(() => {
-  if (!stats.value) return 0;
-  const s = stats.value.status;
-  return (s.NEW || 0) + (s.TRIAGED || 0) + (s.NEEDS_MORE_INFO || 0);
+const form = reactive({
+  title: "",
+  slug: "",
+  iconUrl: "",
+  description: "",
+  website: "",
+  content: "",
 });
 
-const filters = reactive({
-  status: "",
-  severity: "",
-  q: "",
-  page: 1,
+onMounted(async () => {
+  try {
+    const data = await $fetch<{
+      title: string;
+      iconUrl: string | null;
+      description: string;
+      website: string | null;
+      content: string | null;
+    }>(`/api/programs/${slug.value}`);
+
+    form.title = data.title;
+    form.slug = slug.value;
+    form.iconUrl = data.iconUrl || "";
+    form.description = data.description;
+    form.website = data.website || "";
+    form.content = data.content || "";
+  } finally {
+    loading.value = false;
+  }
 });
 
-let searchTimeout: ReturnType<typeof setTimeout>;
-function onSearch(v: string) {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    filters.q = v;
-    filters.page = 1;
-  }, 300);
+async function save() {
+  const res = await run(() =>
+    $fetch<{ slug: string }>(`/api/programs/${slug.value}`, {
+      method: "PUT",
+      body: form,
+    }),
+  );
+
+  if (res) {
+    navigateTo(`/admin/programs/${res.slug}`);
+  }
 }
 
-const query = computed(() => ({
-  status: filters.status || undefined,
-  severity: filters.severity || undefined,
-  q: filters.q || undefined,
-  page: filters.page,
-}));
-
-const { data, pending: reportsPending } = await useFetch(() => `/api/programs/${slug.value}/reports`, {
-  query,
-  watch: [query],
-});
-
-const { data: members, pending: membersPending, refresh: refreshMembers } = await useFetch<Member[]>(() => `/api/programs/${slug.value}/members`);
+const { data: members, pending: mpending, refresh } = await useFetch<Member[]>(() => `/api/programs/${slug.value}/members`);
 
 const newMember = ref("");
 const memberBusy = ref(false);
@@ -202,7 +182,7 @@ async function addMember(force = false) {
     });
     newMember.value = "";
     pendingEmail.value = "";
-    await refreshMembers();
+    await refresh();
   } catch (e: unknown) {
     const err = e as { data?: { data?: { needsConfirm?: boolean }; message?: string } };
     if (err.data?.data?.needsConfirm) {
@@ -233,7 +213,7 @@ async function delMember(id: string) {
       await fetchSession();
       return navigateTo("/dashboard");
     }
-    await refreshMembers();
+    await refresh();
   } catch (e: unknown) {
     const err = e as { data?: { message?: string } };
     memberErr.value = err.data?.message || "Failed to remove member";

@@ -8,7 +8,7 @@
     </div>
 
     <div class="border border-border p-6 mb-8">
-      <h2 class="text-xl font-semibold mb-6">{{ editing ? "Edit Program" : "Create New Program" }}</h2>
+      <h2 class="text-xl font-semibold mb-6">Create New Program</h2>
 
       <form class="space-y-4" @submit.prevent="save">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -49,11 +49,9 @@
         <div class="flex items-center gap-4">
           <button type="submit" :disabled="busy" class="px-6 py-2 bg-accent text-black font-medium transition-colors flex items-center gap-2 disabled:opacity-50">
             <Icon v-if="busy" name="tabler:loader-2" size="18px" class="animate-spin" />
-            <Icon v-else-if="editing" name="tabler:check" size="18px" />
             <Icon v-else name="tabler:plus" size="18px" />
-            {{ editing ? "Save Changes" : "Create Program" }}
+            Create Program
           </button>
-          <button v-if="editing" type="button" class="px-6 py-2 border border-border text-gray-400 hover:text-white transition-colors" @click="reset">Cancel</button>
         </div>
       </form>
     </div>
@@ -80,11 +78,7 @@
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <button class="text-gray-400 hover:text-white transition-colors flex items-center gap-1 text-sm" @click="edit(p)">
-              <Icon name="tabler:edit" size="16px" />
-              Edit
-            </button>
-            <NuxtLink :to="`/admin/programs/${p.slug}`" class="text-accent hover:underline text-sm flex items-center gap-1">
+            <NuxtLink :to="`/admin/programs/${p.slug}`" class="text-accent hover:underline text-md flex items-center justify-center gap-1">
               <Icon name="tabler:settings" size="16px" />
               Manage
             </NuxtLink>
@@ -108,11 +102,6 @@ interface Program {
   description: string;
 }
 
-interface ProgramDetail extends Program {
-  website: string | null;
-  content: string | null;
-}
-
 const { busy, err, run } = useApi();
 
 const form = reactive({
@@ -124,7 +113,6 @@ const form = reactive({
   content: "",
 });
 
-const editing = ref<string | null>(null);
 const slug = ref<string | null>(null);
 
 const { data: list, status, refresh } = await useFetch<Program[]>("/api/programs");
@@ -136,30 +124,11 @@ function reset() {
   form.description = "";
   form.website = "";
   form.content = "";
-  editing.value = null;
   slug.value = null;
-}
-
-async function edit(p: Program) {
-  const full = await $fetch<ProgramDetail>(`/api/programs/${p.slug}`);
-
-  form.title = full.title;
-  form.slug = full.slug;
-  form.iconUrl = full.iconUrl || "";
-  form.description = full.description;
-  form.website = full.website || "";
-  form.content = full.content || "";
-  editing.value = full.id;
-  slug.value = full.slug;
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function save() {
   const res = await run(async () => {
-    if (editing.value && slug.value) {
-      return $fetch(`/api/programs/${slug.value}`, { method: "PUT", body: form });
-    }
     return $fetch("/api/programs", { method: "POST", body: form });
   });
 
