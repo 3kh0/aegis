@@ -263,3 +263,29 @@ export async function setProgram(reportId: string, programId: string | null, aut
     return { success: true };
   });
 }
+
+export async function setDisclosure(reportId: string, type: string, authorId: string) {
+  return prisma.$transaction(async (tx) => {
+    const r = await tx.report.findUnique({ where: { id: reportId }, select: { id: true } });
+    if (!r) throw new Error("Report not found");
+
+    const updated = await tx.report.update({
+      where: { id: reportId },
+      data: { disclosureType: type, disclosedAt: new Date(), disclosedById: authorId },
+    });
+
+    await tx.activity.create({
+      data: { type: "DISCLOSURE_SET", reportId, authorId, newValue: type },
+    });
+
+    notify({ type: "DISCLOSURE_SET", reportId, actorId: authorId }).catch(console.error);
+    return updated;
+  });
+}
+
+export async function setDisclosureSummary(reportId: string, field: "adminSummary" | "reporterSummary", value: string) {
+  return prisma.report.update({
+    where: { id: reportId },
+    data: { [field]: value },
+  });
+}

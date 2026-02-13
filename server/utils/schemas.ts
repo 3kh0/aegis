@@ -89,3 +89,11 @@ export const profileSchema = z.object({
   github: z.string().max(39).optional(),
   publicEmail: z.string().email().optional().or(z.literal("")),
 });
+
+export const disclosureSchema = z.object({
+  type: z.enum(["FULL", "SUMMARIZED"]),
+});
+
+export const disclosureSummarySchema = z.object({
+  summary: z.string().min(1).max(10000),
+});

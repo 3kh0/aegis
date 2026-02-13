@@ -74,6 +74,12 @@ model Report {
   targetName    String?
   targetUrl     String?
 
+  disclosureType     String?
+  disclosedAt        DateTime?
+  disclosedById      String?
+  adminSummary       String?    @db.VarChar(10000)
+  reporterSummary    String?    @db.VarChar(10000)
+
   submittedBy   User       @relation(fields: [submittedById], references: [id])
   submittedById String
   program       Program?   @relation(fields: [programId], references: [id])
@@ -111,6 +117,7 @@ enum ActivityType {
   TITLE_CHANGED
   TRIAGE_JOINED
   PROGRAM_CHANGED
+  DISCLOSURE_SET
 }
 
 enum Severity {

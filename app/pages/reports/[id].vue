@@ -3,10 +3,6 @@
     <Loading v-if="status === 'pending'" />
 
     <template v-else-if="report">
-      <div class="mb-6">
-        <NuxtLink to="/dashboard" class="text-gray-400 hover:text-white text-sm transition-colors"> ← Back to Dashboard </NuxtLink>
-      </div>
-
       <div v-if="report.needsBreakGlass" class="border border-border p-8 text-center">
         <div class="w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <Icon name="tabler:lock-check" size="32" class="text-warning" />
@@ -25,6 +21,95 @@
           <Icon v-else name="tabler:hammer" size="24px" class="inline" />
           {{ joining ? "Joining..." : "Break the Glass & View Report" }}
         </button>
+      </div>
+
+      <div v-else-if="report.disclosed" class="space-y-8">
+        <div class="bg-surface border border-border p-4 flex items-center gap-3">
+          <Icon name="tabler:world" size="24" class="text-accent shrink-0" />
+          <div>
+            <p class="font-medium">This report has been publicly disclosed</p>
+            <p class="text-sm text-gray-400">{{ report.disclosureType === "FULL" ? "The team opted for a full disclosure. This means that all contents of the report are visible, including description, comments, and attachments." : "The team opted for a summarized disclosure. This means that only summaries provided by the program and reporter are visible. This helps protect sensitive information while still providing transparency." }}</p>
+          </div>
+        </div>
+
+        <div class="bg-surface border border-border p-6">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <h1 class="text-2xl font-bold font-display">{{ report.title }}</h1>
+            <div class="flex gap-2">
+              <Badge type="severity" :value="report.severity" />
+              <Badge type="status" :value="report.status" />
+            </div>
+          </div>
+
+          <template v-if="report.disclosureType === 'FULL'">
+            <ReportMarkdown :content="report.description" />
+            <div v-if="report.attachments?.length" class="mt-6 pt-4 border-t border-border">
+              <h3 class="text-sm font-medium text-gray-400 mb-3">Files</h3>
+              <div :class="['grid gap-2', report.attachments.length > 1 ? 'grid-cols-2' : '']">
+                <a v-for="f in report.attachments" :key="f.url" :href="f.url" target="_blank" class="flex items-center gap-3 px-4 py-3 bg-surface-elevated border border-border hover:border-accent transition-colors group">
+                  <Icon :name="fileIcon(f.name)" size="20" class="text-gray-400 group-hover:text-accent shrink-0" />
+                  <span class="flex-1 truncate">{{ trimName(f.name) }}</span>
+                  <span class="text-xs text-gray-500">{{ fmtSize(f.size) }}</span>
+                  <Icon name="tabler:download" size="16" class="text-gray-400 group-hover:text-white shrink-0" />
+                </a>
+              </div>
+            </div>
+          </template>
+
+          <template v-else>
+            <div v-if="report.adminSummary" class="mb-4">
+              <h3 class="text-sm font-medium text-gray-400 mb-2">Summary from the {{ report.program?.title || "Program" }} team</h3>
+              <ReportMarkdown :content="report.adminSummary" />
+            </div>
+            <div v-if="report.reporterSummary">
+              <h3 class="text-sm font-medium text-gray-400 mb-2">
+                Summary from the reporter, <NuxtLink :to="`/@${report.submittedBy?.username}`" class="text-accent hover:underline">{{ report.submittedBy?.username || "Unknown" }}</NuxtLink>
+              </h3>
+              <ReportMarkdown :content="report.reporterSummary" />
+            </div>
+            <p v-if="!report.adminSummary && !report.reporterSummary" class="text-gray-500 italic">No summaries have been provided yet... One should come along soon.</p>
+          </template>
+
+          <div class="mt-6 pt-4 border-t border-border text-sm text-gray-400 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span>
+              <Icon name="tabler:clock" size="16px" class="inline mr-1 align-text-bottom" />
+              {{ localTime(report.createdAt) }}
+            </span>
+            <span v-if="report.program" class="inline-flex items-center gap-1">
+              <Icon name="tabler:target" size="16px" class="shrink-0" />
+              <NuxtLink :to="`/${report.program.slug}`" class="text-accent hover:underline">{{ report.program.title }}</NuxtLink>
+            </span>
+          </div>
+        </div>
+
+        <template v-if="report.disclosureType === 'FULL' && report.activities?.length">
+          <h2 class="text-lg font-semibold font-display mb-6">Activity</h2>
+          <div class="relative">
+            <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+            <div class="space-y-6">
+              <div v-for="a in report.activities" :id="a.id" :key="a.id" class="relative pl-12">
+                <div class="bg-white absolute left-1 w-8 h-8 flex rounded-full items-center justify-center -translate-x-0.5">
+                  <Icon :name="actIcon(a.type)" size="20px" class="text-black" />
+                </div>
+                <div class="bg-surface border border-border p-4">
+                  <div class="flex items-center gap-1 flex-wrap text-sm">
+                    <span class="font-medium">{{ a.author.username }}</span>
+                    <span class="text-gray-500">
+                      <span v-if="a.type === 'STATUS_CHANGED'"> changed status to <Badge type="status" :value="a.newValue || ''" /> </span>
+                      <span v-else-if="a.type === 'SEVERITY_CHANGED'"> updated severity to <Badge type="severity" :value="a.newValue || ''" /> </span>
+                      <span v-else>{{ actDesc(a) }}</span>
+                      <span class="mx-1">•</span>
+                      {{ ago(a.createdAt) }}
+                    </span>
+                  </div>
+                  <div v-if="a.content && a.type === 'COMMENT'" class="mt-3">
+                    <ReportMarkdown :content="a.content" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
 
       <template v-else>
@@ -65,6 +150,10 @@
                 </div>
               </div>
               <Badge v-else type="status" :value="report.status" />
+
+              <span v-if="report.disclosureType === 'FULL'" class="px-2 py-1 rounded text-xs font-medium bg-accent/20 text-accent flex items-center gap-1"> <Icon name="tabler:world" size="14" /> Publicly Disclosed </span>
+              <span v-else-if="report.disclosureType === 'SUMMARIZED'" class="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 flex items-center gap-1"> <Icon name="tabler:file-text" size="14" /> Summary Disclosed </span>
+              <button v-else-if="report.access?.canDisclose" class="px-2 py-1 rounded text-xs font-medium bg-surface-elevated text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer transition-colors" @click="disclosureOpen = true"><Icon name="tabler:world" size="14" /> Disclose</button>
             </div>
           </div>
 
@@ -139,6 +228,46 @@
           </div>
         </div>
 
+        <div v-if="disclosureOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="disclosureOpen = false">
+          <div class="bg-surface border border-border p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-bold font-display mb-4">Public disclosure</h3>
+            <p class="text-gray-400 text-sm mb-4">Public disclosure is a huge part of security. It is how we and others learn from our mistakes and improve. Choose how this report should be disclosed to the public:</p>
+            <div class="space-y-3 mb-6">
+              <button :class="['w-full text-left p-4 border transition-colors cursor-pointer', disclosureType === 'SUMMARIZED' ? 'border-accent bg-accent/10' : 'border-border hover:border-gray-600']" @click="disclosureType = 'SUMMARIZED'">
+                <div class="font-medium flex items-center gap-2"><Icon name="tabler:file-text" size="18" /> Summarized Disclosure</div>
+                <p class="text-sm text-gray-400 mt-1">Both parties or only one can provide a written summary. The report description, comments, and attachments remain private.</p>
+              </button>
+              <button :class="['w-full text-left p-4 border transition-colors cursor-pointer', disclosureType === 'FULL' ? 'border-warning bg-warning/10' : 'border-border hover:border-gray-600']" @click="disclosureType = 'FULL'">
+                <div class="font-medium flex items-center gap-2"><Icon name="tabler:world" size="18" /> Full Disclosure</div>
+                <p class="text-sm text-warning mt-1">All the contents of this report will be publicly visible, the description, comments, and attachments. Consider summarized disclosure instead when the report is genuine and may contain sensitive information.</p>
+              </button>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button class="px-4 py-2 text-gray-400 hover:text-white cursor-pointer" @click="disclosureOpen = false">Cancel</button>
+              <button :disabled="disclosing" class="px-4 py-2 bg-accent text-black font-medium disabled:opacity-50 cursor-pointer flex items-center gap-2" @click="disclose">
+                <Spinner v-if="disclosing" class="h-4 w-4" />
+                {{ disclosing ? "Disclosing..." : "Confirm Disclosure" }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="report.disclosureType === 'SUMMARIZED' && (report.access?.isOwner || report.access?.isProgramAdmin || report.access?.isGlobalAdmin)" class="bg-surface border border-border p-6 mb-8">
+          <h3 class="text-lg font-bold font-display mb-4">Disclosure Summary</h3>
+          <p class="text-gray-400 text-sm mb-4">{{ report.access?.isOwner ? "Write your public summary of this report as the reporter." : "Write the program's public summary for this disclosed report." }}</p>
+          <div v-if="report.access?.isOwner ? report.reporterSummary : report.adminSummary" class="mb-4 p-4 bg-surface-elevated border border-border">
+            <h4 class="text-sm font-medium text-gray-400 mb-2">Current Summary</h4>
+            <ReportMarkdown :content="(report.access?.isOwner ? report.reporterSummary : report.adminSummary)!" />
+          </div>
+          <textarea v-model="summaryText" rows="4" placeholder="Write your summary for all to see... Markdown is supported!" class="w-full px-4 py-3 bg-surface border border-border text-sm font-mono focus:outline-none focus:border-accent transition-colors resize-y mb-4" />
+          <div class="flex justify-end">
+            <button :disabled="!summaryText.trim() || savingSummary" class="flex items-center gap-2 px-4 py-2 bg-accent disabled:opacity-50 text-black font-medium transition-colors" @click="saveSummary">
+              <Spinner v-if="savingSummary" class="h-4 w-4" />
+              {{ savingSummary ? "Saving..." : "Save Summary" }}
+            </button>
+          </div>
+        </div>
+
         <div class="mt-6">
           <h2 class="text-lg font-semibold font-display mb-6">Activity</h2>
           <div class="relative">
@@ -200,9 +329,7 @@
 <script setup lang="ts">
 import { fmtSize, icon as fileIcon } from "~~/shared/fileTypes";
 
-definePageMeta({
-  middleware: "auth",
-});
+definePageMeta({});
 
 interface Activity {
   id: string;
@@ -245,6 +372,11 @@ interface Report {
   status: string;
   createdAt: string;
   needsBreakGlass?: boolean;
+  disclosed?: boolean;
+  disclosureType?: string;
+  disclosedAt?: string;
+  adminSummary?: string;
+  reporterSummary?: string;
   submittedBy?: { username?: string | null; verified?: boolean };
   program?: { slug: string; title: string };
   participants?: Participant[];
@@ -257,6 +389,7 @@ interface Report {
     canChangeStatus: boolean;
     canChangeSeverity: boolean;
     canReassignProgram: boolean;
+    canDisclose: boolean;
     isOwner: boolean;
     isTriage: boolean;
     needsBreakGlass: boolean;
@@ -285,6 +418,12 @@ const selectedProgram = ref<string>("");
 function isSelected(id: string) {
   return selectedProgram.value === id;
 }
+const disclosureOpen = ref(false);
+const disclosureType = ref<"FULL" | "SUMMARIZED">("SUMMARIZED");
+const disclosing = ref(false);
+const summaryText = ref("");
+const savingSummary = ref(false);
+
 const actIcons = {
   SUBMITTED: "tabler:send",
   COMMENT: "tabler:message-2",
@@ -294,6 +433,7 @@ const actIcons = {
   TRIAGE_JOINED: "tabler:arrow-up-to-arc",
   AUTHOR_JOINED: "tabler:arrow-up-to-arc",
   PROGRAM_CHANGED: "tabler:switch-horizontal",
+  DISCLOSURE_SET: "tabler:world",
 } as const;
 
 const SEVS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;
@@ -384,6 +524,7 @@ function actDesc(a: { type: string; newValue?: string | null }) {
     COMMENT: "posted a comment",
     TRIAGE_JOINED: "joined the report",
     AUTHOR_JOINED: "joined the report",
+    DISCLOSURE_SET: "publicly disclosed this report",
   };
   return desc[a.type] || "";
 }
@@ -411,6 +552,34 @@ async function reassign() {
     await refresh();
   } finally {
     reassigning.value = false;
+  }
+}
+
+async function disclose() {
+  disclosing.value = true;
+  try {
+    await $fetch(`/api/reports/${route.params.id}/disclosure`, {
+      method: "PATCH",
+      body: { type: disclosureType.value },
+    });
+    disclosureOpen.value = false;
+    await refresh();
+  } finally {
+    disclosing.value = false;
+  }
+}
+
+async function saveSummary() {
+  if (!summaryText.value.trim()) return;
+  savingSummary.value = true;
+  try {
+    await $fetch(`/api/reports/${route.params.id}/disclosure-summary`, {
+      method: "PATCH",
+      body: { summary: summaryText.value },
+    });
+    await refresh();
+  } finally {
+    savingSummary.value = false;
   }
 }
 
