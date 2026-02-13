@@ -27,39 +27,39 @@
       </div>
     </div>
 
-      <div class="lg:col-span-2 space-y-6">
-        <Loading v-if="statsPending" />
+    <div class="lg:col-span-2 space-y-6">
+      <Loading v-if="statsPending" />
 
-        <template v-else-if="stats">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <DashboardStat icon="tabler:file-text" label="Total Reports" :value="stats.total" />
-            <DashboardStat icon="tabler:clock" label="Last 7 Days" :value="stats.recent" />
-            <DashboardStat icon="tabler:alert-circle" label="Open" :value="openCount" />
-            <DashboardStat icon="tabler:check" label="Resolved" :value="stats.status.RESOLVED || 0" />
-          </div>
-        </template>
-
-        <div>
-          <DashboardFilters
-            :status="filters.status"
-            :severity="filters.severity"
-            :q="filters.q"
-            @status="
-              filters.status = $event;
-              filters.page = 1;
-            "
-            @severity="
-              filters.severity = $event;
-              filters.page = 1;
-            "
-            @search="onSearch"
-          />
+      <template v-else-if="stats">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <DashboardStat icon="tabler:file-text" label="Total Reports" :value="stats.total" />
+          <DashboardStat icon="tabler:clock" label="Last 7 Days" :value="stats.recent" />
+          <DashboardStat icon="tabler:alert-circle" label="Open" :value="openCount" />
+          <DashboardStat icon="tabler:check" label="Resolved" :value="stats.status.RESOLVED || 0" />
         </div>
+      </template>
 
-        <Loading v-if="reportsPending" />
-
-        <DashboardTable v-else-if="data" :reports="data.reports" :page="data.page" :pages="data.pages" :total="data.total" @page="filters.page = $event" />
+      <div>
+        <DashboardFilters
+          :status="filters.status"
+          :severity="filters.severity"
+          :q="filters.q"
+          @status="
+            filters.status = $event;
+            filters.page = 1;
+          "
+          @severity="
+            filters.severity = $event;
+            filters.page = 1;
+          "
+          @search="onSearch"
+        />
       </div>
+
+      <Loading v-if="reportsPending" />
+
+      <DashboardTable v-else-if="data" :reports="data.reports" :page="data.page" :pages="data.pages" :total="data.total" @page="filters.page = $event" />
+    </div>
   </div>
 </template>
 
