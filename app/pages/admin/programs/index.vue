@@ -102,11 +102,6 @@ interface Program {
   description: string;
 }
 
-interface ProgramDetail extends Program {
-  website: string | null;
-  content: string | null;
-}
-
 const { busy, err, run } = useApi();
 
 const form = reactive({

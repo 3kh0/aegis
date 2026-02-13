@@ -70,7 +70,6 @@ definePageMeta({
 
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
-const { user, fetch: fetchSession } = useUserSession();
 
 interface Program {
   id: string;
@@ -83,13 +82,6 @@ interface Stats {
   recent: number;
   status: Record<string, number>;
   severity: Record<string, number>;
-}
-
-interface Member {
-  id: string;
-  email: string;
-  username: string | null;
-  joinedAt?: string;
 }
 
 const { data: program } = await useFetch<Program>(`/api/programs/${slug.value}`);
