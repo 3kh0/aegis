@@ -1,5 +1,6 @@
 import { getReportWithAccessCheck, isAdmin, isGlobalAdmin, parseParticipants } from "../../utils/permissions";
 import { requireParam } from "../../utils/api";
+import type { UserRole } from "../../../prisma/db";
 import { prisma } from "../../../prisma/db";
 
 export default defineEventHandler(async (event) => {
@@ -12,7 +13,7 @@ export default defineEventHandler(async (event) => {
       const found = await prisma.user.findUnique({ where: { id: s.user.id }, select: { id: true, role: true } });
       if (found) u = found;
     }
-  } catch {}
+  } catch { /* for our anons */ }
 
   if (!u) {
     const r = await prisma.report.findUnique({
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event) => {
     return returnDisclosed(r);
   }
 
-  const result = await getReportWithAccessCheck(id, u.id, u.role as any);
+  const result = await getReportWithAccessCheck(id, u.id, u.role as UserRole);
   if (!result) throw createError({ status: 404, message: "Report not found" });
 
   const { report, access } = result;
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
   };
 });
 
-function returnDisclosed(report: any) {
+function returnDisclosed(report: Record<string, unknown> & { activities?: Array<Record<string, unknown> & { author: Record<string, unknown> }> }) {
   const base = {
     id: report.id,
     title: report.title,
@@ -107,19 +108,33 @@ function returnDisclosed(report: any) {
     disclosedAt: report.disclosedAt,
     disclosed: true,
     access: {
-      canView: false, canViewDetails: false, canTriage: false, canChangeStatus: false,
-      canChangeSeverity: false, canReassignProgram: false, canDisclose: false,
-      isOwner: false, isAdmin: false, isGlobalAdmin: false, isProgramAdmin: false,
-      isTriage: false, needsBreakGlass: false,
+      canView: false,
+      canViewDetails: false,
+      canTriage: false,
+      canChangeStatus: false,
+      canChangeSeverity: false,
+      canReassignProgram: false,
+      canDisclose: false,
+      isOwner: false,
+      isAdmin: false,
+      isGlobalAdmin: false,
+      isProgramAdmin: false,
+      isTriage: false,
+      needsBreakGlass: false,
     },
   };
 
   if (report.disclosureType === "FULL") {
-    const activities = report.activities?.map((a: any) => ({
-      id: a.id, type: a.type, content: a.content, oldValue: a.oldValue, newValue: a.newValue,
-      createdAt: a.createdAt,
-      author: { username: a.author.username, isAdmin: isAdmin(a.author.role), isGlobalAdmin: isGlobalAdmin(a.author.role), isOP: a.author.id === report.submittedById },
-    })) || [];
+    const activities =
+      report.activities?.map((a) => ({
+        id: a.id,
+        type: a.type,
+        content: a.content,
+        oldValue: a.oldValue,
+        newValue: a.newValue,
+        createdAt: a.createdAt,
+        author: { username: a.author.username, isAdmin: isAdmin(a.author.role), isGlobalAdmin: isGlobalAdmin(a.author.role), isOP: a.author.id === report.submittedById },
+      })) || [];
     return { ...base, description: report.description, activities, attachments: report.attachments };
   }
 
