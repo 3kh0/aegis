@@ -12,6 +12,10 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <NuxtLink :to="`/admin/programs/${slug}/edit`" class="px-4 py-2 border border-border text-gray-400 hover:text-white hover:border-accent transition-colors flex items-center gap-2">
+          <Icon name="tabler:edit" size="18px" />
+          Edit
+        </NuxtLink>
         <NuxtLink :to="`/${slug}`" class="px-4 py-2 border border-border text-gray-400 hover:text-white hover:border-accent transition-colors flex items-center gap-2">
           <Icon name="tabler:external-link" size="18px" />
           View Public Page
