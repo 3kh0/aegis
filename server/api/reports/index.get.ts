@@ -5,9 +5,7 @@ import { prisma } from "../../../prisma/db";
 export default defineEventHandler(async (event) => {
   const u = await getUser(event);
 
-  const match = await prisma.$queryRaw<{ id: string }[]>(
-    Prisma.sql`SELECT id FROM "Report" WHERE "submittedById" = ${u.id} OR "participants"::jsonb @> ${JSON.stringify([{ userId: u.id }])}::jsonb ORDER BY "createdAt" DESC`,
-  );
+  const match = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`SELECT id FROM "Report" WHERE "submittedById" = ${u.id} OR "participants"::jsonb @> ${JSON.stringify([{ userId: u.id }])}::jsonb ORDER BY "createdAt" DESC`);
 
   if (match.length === 0) return [];
 
