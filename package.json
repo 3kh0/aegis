@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
+    "build": "nuxt build && find .output/server/node_modules -type l -delete 2>/dev/null; true",
     "predev": "bunx prisma generate",
     "dev": "nuxt dev",
     "generate": "nuxt generate",

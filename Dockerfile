@@ -11,7 +11,6 @@ RUN bunx prisma generate
 COPY . .
 
 RUN bun run build
-RUN find .output/server/node_modules -maxdepth 10 -type l -delete 2>/dev/null; true
 
 FROM oven/bun:alpine
 
