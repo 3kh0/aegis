@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     const data = await r2get(`uploads/${p}`);
     setHeader(event, "Content-Type", mime(ext(p)));
     setHeader(event, "X-Content-Type-Options", "nosniff");
-    setHeader(event, "Content-Disposition", "attachment");
+    setHeader(event, "Content-Disposition", "inline");
     setHeader(event, "Cache-Control", report.disclosureType ? "public, max-age=3600" : "private, max-age=3600");
     return data;
   } catch {
