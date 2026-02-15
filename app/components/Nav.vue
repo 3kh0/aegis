@@ -136,7 +136,12 @@
 </template>
 
 <script setup lang="ts">
-interface NavProgram { id: string; title: string; slug: string; iconUrl: string | null }
+interface NavProgram {
+  id: string;
+  title: string;
+  slug: string;
+  iconUrl: string | null;
+}
 
 const { loggedIn, session, clear } = useUserSession();
 const role = computed(() => session.value?.user?.role);
@@ -162,7 +167,13 @@ onMounted(() => document.addEventListener("click", outside));
 onUnmounted(() => document.removeEventListener("click", outside));
 
 const route = useRoute();
-watch(() => route.fullPath, () => { mob.value = false; mobSub.value = false });
+watch(
+  () => route.fullPath,
+  () => {
+    mob.value = false;
+    mobSub.value = false;
+  },
+);
 
 async function logout() {
   await clear();
@@ -184,26 +195,75 @@ async function logout() {
   @apply flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-surface-elevated transition-colors active:scale-[0.98] motion-reduce:active:scale-100;
 }
 
-.pop-enter-active { transition: opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1), transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1) }
-.pop-leave-active { transition: opacity 120ms cubic-bezier(0.215, 0.61, 0.355, 1), transform 120ms cubic-bezier(0.215, 0.61, 0.355, 1) }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: scale(0.97) translateY(-4px) }
+.pop-enter-active {
+  transition:
+    opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.pop-leave-active {
+  transition:
+    opacity 120ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    transform 120ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.97) translateY(-4px);
+}
 
-.slide-enter-active { transition: opacity 200ms cubic-bezier(0.215, 0.61, 0.355, 1), max-height 200ms cubic-bezier(0.215, 0.61, 0.355, 1); max-height: 500px }
-.slide-leave-active { transition: opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1), max-height 150ms cubic-bezier(0.215, 0.61, 0.355, 1) }
-.slide-enter-from, .slide-leave-to { opacity: 0; max-height: 0 }
+.slide-enter-active {
+  transition:
+    opacity 200ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    max-height 200ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  max-height: 500px;
+}
+.slide-leave-active {
+  transition:
+    opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1),
+    max-height 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
 
-.fade-enter-active { transition: opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1) }
-.fade-leave-active { transition: opacity 120ms cubic-bezier(0.215, 0.61, 0.355, 1) }
-.fade-enter-from, .fade-leave-to { opacity: 0 }
+.fade-enter-active {
+  transition: opacity 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.fade-leave-active {
+  transition: opacity 120ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 
-.spin-enter-active, .spin-leave-active { transition: opacity 100ms ease, transform 100ms ease }
-.spin-enter-from { opacity: 0; transform: rotate(-90deg) scale(0.8) }
-.spin-leave-to { opacity: 0; transform: rotate(90deg) scale(0.8) }
+.spin-enter-active,
+.spin-leave-active {
+  transition:
+    opacity 100ms ease,
+    transform 100ms ease;
+}
+.spin-enter-from {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.8);
+}
+.spin-leave-to {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.8);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .pop-enter-active, .pop-leave-active,
-  .slide-enter-active, .slide-leave-active,
-  .fade-enter-active, .fade-leave-active,
-  .spin-enter-active, .spin-leave-active { transition: none }
+  .pop-enter-active,
+  .pop-leave-active,
+  .slide-enter-active,
+  .slide-leave-active,
+  .fade-enter-active,
+  .fade-leave-active,
+  .spin-enter-active,
+  .spin-leave-active {
+    transition: none;
+  }
 }
 </style>
