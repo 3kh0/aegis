@@ -59,11 +59,28 @@
           </div>
         </div>
         <button v-if="slack" :disabled="loading" class="text-red-400 hover:text-red-300 disabled:opacity-50 cursor-pointer" @click="disconnectSlack">Disconnect</button>
-        <a v-else href="/api/auth/slack/connect" class="px-3 py-1.5 bg-accent text-black text-sm font-medium hover:bg-accent/90 transition-colors"> Connect Slack </a>
+        <a v-else href="/api/auth/slack/connect" class="px-3 py-1.5 bg-accent text-black text-sm font-medium hover:bg-accent/90 transition-colors">Connect</a>
       </div>
       <div v-if="slackError" class="p-4 bg-red-500/10 border border-red-500/30 text-red-400">
         <p class="font-medium">Failed to connect Slack</p>
         <p class="text-sm">{{ slackError }}</p>
+      </div>
+
+      <div class="flex items-center justify-between p-4 hover:bg-zinc-900/50 transition-colors">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 24 24" class="text-gray-400 m-0.5"><path fill="currentColor" d="M12 0C2.4 0 0 2.4 0 12s2.4 12 12 12s12-2.4 12-12S21.6 0 12 0m4.5 19.51h-3.31v-6.507c0-.975-.187-1.622-.834-1.622c-.712 0-1.575 1.003-1.575 2.625v5.503H7.5V4.97l3.29-.563v5.428c.713-.646 1.707-.928 2.72-.928c2.156 0 2.99 1.416 2.99 3.628z" /></svg>
+          <div>
+            <p class="font-medium">Sign in with Hack Club</p>
+            <p class="text-sm text-gray-500">
+              <template v-if="hca"
+                >Linked account: <span class="select-all">{{ hackClubId }}</span></template
+              >
+              <template v-else>Ditch email codes for a faster sign-in experience</template>
+            </p>
+          </div>
+        </div>
+        <button v-if="hca" :disabled="hcaLoading" class="text-red-400 hover:text-red-300 disabled:opacity-50 cursor-pointer" @click="disconnectHCA">Disconnect</button>
+        <a v-else href="/api/auth/hackclub?to=/settings" class="px-3 py-1.5 bg-accent text-black text-sm font-medium hover:bg-accent/90 transition-colors">Connect</a>
       </div>
     </div>
 
@@ -142,9 +159,13 @@ const errorMsgs: Record<string, string> = {
 
 // SSR fetch - no client flashes
 const { data: slackData } = await useFetch<{ connected: boolean }>("/api/user/slack-status");
+const { data: hcaData } = await useFetch<{ connected: boolean; hackClubId: string | null }>("/api/user/hca-status");
 const { data: prefsData } = await useFetch<Record<string, Record<string, boolean>>>("/api/profile/notifications");
 
 const slack = ref(slackData.value?.connected ?? false);
+const hca = ref(hcaData.value?.connected ?? false);
+const hackClubId = ref(hcaData.value?.hackClubId ?? null);
+const hcaLoading = ref(false);
 const prefs = ref(prefsData.value ?? Object.fromEntries(notifTypes.map((n) => [n.key, { email: true }])));
 const loading = ref(false);
 
@@ -203,6 +224,14 @@ async function disconnectSlack() {
   await $fetch("/api/auth/slack/disconnect", { method: "DELETE" });
   slack.value = false;
   loading.value = false;
+}
+
+async function disconnectHCA() {
+  hcaLoading.value = true;
+  await $fetch("/api/auth/hackclub/disconnect", { method: "DELETE" });
+  hca.value = false;
+  hackClubId.value = null;
+  hcaLoading.value = false;
 }
 
 useHead({ title: "Personal Settings" });

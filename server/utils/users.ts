@@ -16,6 +16,12 @@ export async function upsertHCA(hackClubId: string, email: string) {
     where: { hackClubId },
   });
   if (existingByHackClubId) {
+    if (existingByHackClubId.email !== email) {
+      return await prisma.user.update({
+        where: { id: existingByHackClubId.id },
+        data: { email },
+      });
+    }
     return existingByHackClubId;
   }
 
