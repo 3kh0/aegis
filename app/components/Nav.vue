@@ -82,13 +82,13 @@
       <div v-if="mob" class="md:hidden border-t border-border bg-surface overflow-hidden">
         <div class="px-4 py-3 flex flex-col gap-0.5">
           <template v-if="loggedIn">
-            <NuxtLink to="/dashboard" class="mob-link" @click="mob = false">
+            <NuxtLink to="/dashboard" class="mob-link text-gray-400" @click="mob = false">
               <Icon name="tabler:layout-grid" size="18px" />
               Dashboard
             </NuxtLink>
 
             <template v-if="showPrograms">
-              <button class="mob-link w-full cursor-pointer" @click="mobSub = !mobSub">
+              <button class="mob-link text-gray-400 w-full cursor-pointer" @click="mobSub = !mobSub">
                 <Icon name="tabler:building" size="18px" />
                 My Programs
                 <Icon name="tabler:chevron-down" size="14px" class="ml-auto transition-transform duration-200" :class="mobSub && 'rotate-180'" />
@@ -96,7 +96,7 @@
               <Transition name="fade">
                 <div v-if="mobSub" class="pl-4 flex flex-col gap-0.5">
                   <div v-if="!programs.length" class="py-2 px-3 text-gray-500 text-sm">No programs assigned</div>
-                  <NuxtLink v-for="p in programs" :key="p.id" :to="`/admin/programs/${p.slug}`" class="mob-link" @click="mob = false">
+                  <NuxtLink v-for="p in programs" :key="p.id" :to="`/admin/programs/${p.slug}`" class="mob-link text-gray-400" @click="mob = false">
                     <img v-if="p.iconUrl" :src="p.iconUrl" width="20" height="20" class="w-5 h-5 object-contain" />
                     <Icon v-else name="tabler:building" size="18px" class="text-gray-500 shrink-0" />
                     <span class="truncate">{{ p.title }}</span>
@@ -105,22 +105,22 @@
               </Transition>
             </template>
 
-            <NuxtLink v-if="isGlobal" to="/admin" class="mob-link" @click="mob = false">
+            <NuxtLink v-if="isGlobal" to="/admin" class="mob-link text-gray-400" @click="mob = false">
               <Icon name="tabler:hammer" size="18px" />
               Admin
             </NuxtLink>
 
             <div class="border-t border-border my-2" />
 
-            <NuxtLink :to="`/@${session?.user?.username}`" class="mob-link" @click="mob = false">
+            <NuxtLink :to="`/@${session?.user?.username}`" class="mob-link text-gray-400" @click="mob = false">
               <Icon name="tabler:user" size="18px" />
               Profile
             </NuxtLink>
-            <NuxtLink to="/settings" class="mob-link" @click="mob = false">
+            <NuxtLink to="/settings" class="mob-link text-gray-400" @click="mob = false">
               <Icon name="tabler:settings" size="18px" />
               Settings
             </NuxtLink>
-            <button class="mob-link w-full cursor-pointer" @click="logout">
+            <button class="mob-link text-gray-400 w-full cursor-pointer" @click="logout">
               <Icon name="tabler:arrow-left-from-arc" size="18px" />
               Logout
             </button>
@@ -192,7 +192,7 @@ async function logout() {
   @apply flex items-center h-11 gap-3 px-4 hover:bg-surface-elevated transition-colors;
 }
 .mob-link {
-  @apply flex items-center gap-3 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-surface-elevated transition-colors active:scale-[0.98] motion-reduce:active:scale-100;
+  @apply flex items-center gap-3 px-3 py-3 hover:text-white hover:bg-surface-elevated transition-colors active:scale-[0.98] motion-reduce:active:scale-100;
 }
 
 .pop-enter-active {
