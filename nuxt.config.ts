@@ -75,6 +75,9 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    session: {
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    },
     resendApiKey: process.env.NUXT_RESEND_API_KEY,
     emailFrom: "Aegis <outbin@outbound.3kh0.net>",
     siteUrl: "http://localhost:3000",
