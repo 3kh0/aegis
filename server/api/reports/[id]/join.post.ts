@@ -2,6 +2,7 @@ import { z } from "zod";
 import { addTriage, canAccessProgram } from "../../../utils/permissions";
 import { requireParam, requireAdminFull } from "../../../utils/api";
 import { prisma } from "../../../../prisma/db";
+import { notify } from "../../../notifications";
 
 export default defineEventHandler(async (event) => {
   const id = requireParam(event, "id");
@@ -20,7 +21,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 400, message: "You are already the owner of this report" });
   }
 
-  await addTriage(id, u.id, u.username || "unknown");
+  const added = await addTriage(id, u.id, u.username || "unknown");
+  if (!added) {
+    throw createError({ status: 400, message: "You have already joined this report" });
+  }
 
   await prisma.activity.create({
     data: {
@@ -29,6 +33,12 @@ export default defineEventHandler(async (event) => {
       authorId: u.id,
     },
   });
+
+  notify({
+    type: "TRIAGE_JOINED",
+    reportId: id,
+    actorId: u.id,
+  }).catch((err) => console.error("Failed to send triage-joined notification:", err));
 
   return { success: true };
 });

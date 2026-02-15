@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "../../../prisma/db";
 import { getUser, parseBody } from "../../utils/api";
-import { notifications } from "../../notifications/config";
+import { isNotificationChannel, notifications } from "../../notifications/config";
 
 const schema = z.object({ type: z.string(), channel: z.string(), enabled: z.boolean() });
 
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
   const { type, channel, enabled } = await parseBody(event, schema);
 
   if (!notifications[type]) throw createError({ status: 400, message: "Invalid notification type" });
+  if (!isNotificationChannel(channel)) throw createError({ status: 400, message: "Invalid notification channel" });
 
   await prisma.notificationPreference.upsert({
     where: { userId_type_channel: { userId: id, type, channel } },

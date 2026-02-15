@@ -91,7 +91,7 @@ export function isReportOwner(report: { submittedById: string }, userId: string)
   return report.submittedById === userId;
 }
 
-export async function addTriage(reportId: string, userId: string, username: string): Promise<void> {
+export async function addTriage(reportId: string, userId: string, username: string): Promise<boolean> {
   const report = await prisma.report.findUnique({
     where: { id: reportId },
     select: { participants: true },
@@ -102,7 +102,7 @@ export async function addTriage(reportId: string, userId: string, username: stri
   const participants = parseParticipants(report.participants);
 
   if (participants.some((p) => p.userId === userId)) {
-    return;
+    return false;
   }
 
   const newParticipant: ReportParticipant = {
@@ -118,6 +118,8 @@ export async function addTriage(reportId: string, userId: string, username: stri
       participants: [...participants, newParticipant],
     },
   });
+
+  return true;
 }
 
 export async function getReportWithAccessCheck(reportId: string, userId: string, userRole: UserRole) {

@@ -176,6 +176,7 @@ const notifTypes = [
   { key: "SEVERITY_CHANGED", label: "Severity changes", desc: "When report severity is updated" },
   { key: "TITLE_CHANGED", label: "Title changes", desc: "When report title is updated" },
   { key: "PROGRAM_CHANGED", label: "Program changes", desc: "When report is moved to another program" },
+  { key: "DISCLOSURE_SET", label: "Report disclosures", desc: "When a report is publicly disclosed" },
   { key: "TRIAGE_JOINED", label: "Someone joins report", desc: "When a triager joins your report" },
   { key: "REPORT_SUBMITTED", label: "New reports", desc: "When a new report is submitted for a program you manage" },
   { key: "PROGRAM_INVITE", label: "Program invites", desc: "When invited to manage a program" },

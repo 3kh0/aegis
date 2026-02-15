@@ -6,6 +6,13 @@ interface Ctx {
   data: Record<string, string>;
 }
 
+export const notificationChannels = ["email", "slack"] as const;
+export type NotificationChannel = (typeof notificationChannels)[number];
+
+export function isNotificationChannel(value: string): value is NotificationChannel {
+  return (notificationChannels as readonly string[]).includes(value);
+}
+
 type Recipient = "report_owner" | "report_participants" | "program_admins" | "direct";
 
 interface Config {

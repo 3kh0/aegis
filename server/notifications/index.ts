@@ -1,5 +1,5 @@
 import { prisma } from "../../prisma/db";
-import { notifications, type NotificationType } from "./config";
+import { isNotificationChannel, notifications, type NotificationChannel, type NotificationType } from "./config";
 import { getRecipients } from "./recipients";
 import { sendEmail } from "./channels/email";
 import { sendSlack } from "./channels/slack";
@@ -28,13 +28,33 @@ export async function notify(p: NotifyParams): Promise<void> {
   const url = cfg.url({ ...ctx, data: d });
 
   for (const r of recs) {
-    const ch = await getChannels(r.id, p.type);
-    if (ch.includes("email")) {
-      await sendEmail({ to: r.email, username: r.username || "there", subject: subj, message: msg, url });
+    const channels = await getChannels(r.id, p.type);
+    if (!channels.length) continue;
+
+    const jobs: Promise<unknown>[] = [];
+
+    if (channels.includes("email")) {
+      jobs.push(
+        sendEmail({ to: r.email, username: r.username || "there", subject: subj, message: msg, url }).catch((err: unknown) => {
+          console.error("[Notify] Email send failed", { type: p.type, userId: r.id, error: err });
+        }),
+      );
     }
-    if (ch.includes("slack")) {
-      await sendSlack({ userId: r.id, message: msg, url });
+    if (channels.includes("slack")) {
+      jobs.push(
+        sendSlack({ userId: r.id, message: msg, url })
+          .then((ok) => {
+            if (!ok) {
+              console.error("[Notify] Slack send failed", { type: p.type, userId: r.id });
+            }
+          })
+          .catch((err: unknown) => {
+            console.error("[Notify] Slack send failed", { type: p.type, userId: r.id, error: err });
+          }),
+      );
     }
+
+    await Promise.all(jobs);
   }
 }
 
@@ -67,9 +87,14 @@ async function buildCtx(p: NotifyParams, baseUrl: string): Promise<Ctx> {
   return ctx;
 }
 
-async function getChannels(userId: string, type: NotificationType): Promise<string[]> {
+async function getChannels(userId: string, type: NotificationType): Promise<NotificationChannel[]> {
   const prefs = await prisma.notificationPreference.findMany({ where: { userId, type } });
-  return prefs.length ? prefs.filter((p) => p.enabled).map((p) => p.channel) : ["email"];
+  if (!prefs.length) return ["email"];
+
+  const validPrefs = prefs.filter((p) => isNotificationChannel(p.channel));
+  if (!validPrefs.length) return ["email"];
+
+  return validPrefs.filter((p) => p.enabled).map((p) => p.channel);
 }
 
 export { type NotificationType } from "./config";
