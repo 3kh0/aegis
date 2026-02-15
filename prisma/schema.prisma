@@ -21,6 +21,8 @@ model User {
   publicEmail  String?
   blockedUntil DateTime?
   blockReason  String?
+  deleted      Boolean   @default(false)
+  deletedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 

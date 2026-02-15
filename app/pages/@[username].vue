@@ -1,6 +1,10 @@
 <template>
   <div class="max-w-4xl mx-auto px-4 py-8">
-    <Loading v-if="status === 'pending'" />
+    <Loading v-if="!deleted && status === 'pending'" />
+
+    <template v-if="deleted">
+      <ProfileHeader username="deleted" joined="January 1970" description="This user has been deleted and their profile is no longer available." class="mb-8" />
+    </template>
 
     <template v-else-if="data">
       <ProfileHeader :username="data.user.username!" :verified="data.user.verified" :joined="joined" :description="data.user.description" :website="data.user.website" :github="data.user.github" :public-email="data.user.publicEmail" :own="own" :edit="edit" class="mb-8" @edit="edit = true" @cancel="edit = false" @saved="onSaved" />
@@ -39,12 +43,13 @@
 
 <script setup lang="ts">
 const route = useRoute();
+const deleted = computed(() => route.params.username === "[deleted]");
 const username = route.params.username as string;
 const { user } = useUserSession();
 
-const { data, status } = await useFetch(`/api/users/${username}`);
+const { data, status } = deleted.value ? { data: ref(null), status: ref("success" as const) } : await useFetch(`/api/users/${username}`);
 
-if (status.value === "error" || !data.value) {
+if (!deleted.value && (status.value === "error" || !data.value)) {
   throw createError({ statusCode: 404, statusMessage: "User not found" });
 }
 
