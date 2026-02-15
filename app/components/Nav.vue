@@ -35,7 +35,7 @@
             Admin
           </NuxtLink>
           <div ref="userDropdown" class="relative">
-            <button class="text-gray-400 hover:text-white transition-colors flex items-center gap-2" @click="userOpen = !userOpen">
+            <button class="text-gray-400 hover:text-white transition-colors flex items-center gap-2 cursor-pointer" @click="userOpen = !userOpen">
               <Icon name="tabler:user-circle" size="20px" />
               {{ session?.user?.username }}
               <Icon :name="userOpen ? 'tabler:chevron-up' : 'tabler:chevron-down'" size="14px" />
