@@ -10,9 +10,7 @@
               <Icon name="tabler:meteor" class="w-6 h-6 transition-transform duration-200 group-hover:-translate-x-0.5 group-hover:translate-y-0.5 will-change-transform" />
               <span class="font-display font-bold">Aegis</span>
             </NuxtLink>
-            <NuxtLink v-if="session?.user?.username" :to="`/@${session?.user?.username}`" class="hidden sm:flex text-gray-400 hover:text-white transition-colors items-center gap-2">
-              Hi, {{ session.user.username }}!
-            </NuxtLink>
+            <NuxtLink v-if="session?.user?.username" :to="`/@${session?.user?.username}`" class="hidden sm:flex text-gray-400 hover:text-white transition-colors items-center gap-2"> Hi, {{ session.user.username }}! </NuxtLink>
           </div>
 
           <!-- desktop -->
@@ -124,7 +122,12 @@ const isGlobal = computed(() => session.value?.user?.role === "GLOBAL_ADMIN");
 const mob = ref(false);
 
 const route = useRoute();
-watch(() => route.fullPath, () => { mob.value = false; });
+watch(
+  () => route.fullPath,
+  () => {
+    mob.value = false;
+  },
+);
 
 async function logout() {
   await clear();
