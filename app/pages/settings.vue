@@ -134,9 +134,7 @@
           <p class="font-medium text-red-400">Delete Account</p>
           <p class="text-sm text-gray-500">This will permanently delete your account and all associated data. Reports you've submitted will be kept but anonymized. There is no way to recover your account after deletion.</p>
         </div>
-        <button class="px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-600 transition-colors cursor-pointer shrink-0" @click="deleteModal = true">
-          Delete Account
-        </button>
+        <button class="px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-600 transition-colors cursor-pointer shrink-0" @click="deleteModal = true">Delete Account</button>
       </div>
     </div>
 
@@ -147,7 +145,15 @@
         <p class="text-gray-400 text-sm mb-4">Type <span class="text-white text-xs py-1 px-2 bg-surface-elevated font-mono">delete my account</span> to confirm:</p>
         <input v-model="deleteConfirm" type="text" placeholder="delete my account" class="w-full px-3 py-2 bg-black border border-border focus:outline-none focus:border-red-500 transition-colors mb-4" />
         <div class="flex justify-end gap-2">
-          <button class="px-4 py-2 text-gray-400 hover:text-white cursor-pointer" @click="deleteModal = false; deleteConfirm = ''">Cancel</button>
+          <button
+            class="px-4 py-2 text-gray-400 hover:text-white cursor-pointer"
+            @click="
+              deleteModal = false;
+              deleteConfirm = '';
+            "
+          >
+            Cancel
+          </button>
           <button :disabled="deleteConfirm !== 'delete my account' || deleting" class="px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-600 disabled:opacity-50 cursor-pointer flex items-center gap-2" @click="deleteAccount">
             <Spinner v-if="deleting" size="16px" />
             {{ deleting ? "Deleting..." : "Delete Account" }}
