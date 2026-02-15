@@ -114,36 +114,27 @@ const route = useRoute();
 const slug = computed(() => route.params.slug as string);
 
 const { busy, err, run } = useApi();
-const loading = ref(true);
+const { data: programData, status: programStatus } = await useFetch<{
+  title: string;
+  iconUrl: string | null;
+  description: string;
+  website: string | null;
+  content: string | null;
+}>(`/api/programs/${slug.value}`);
+
+if (programStatus.value === "error" || (!programData.value && programStatus.value !== "pending")) {
+  throw createError({ statusCode: 404, statusMessage: "Program not found" });
+}
+
+const loading = ref(false);
 
 const form = reactive({
-  title: "",
-  slug: "",
-  iconUrl: "",
-  description: "",
-  website: "",
-  content: "",
-});
-
-onMounted(async () => {
-  try {
-    const data = await $fetch<{
-      title: string;
-      iconUrl: string | null;
-      description: string;
-      website: string | null;
-      content: string | null;
-    }>(`/api/programs/${slug.value}`);
-
-    form.title = data.title;
-    form.slug = slug.value;
-    form.iconUrl = data.iconUrl || "";
-    form.description = data.description;
-    form.website = data.website || "";
-    form.content = data.content || "";
-  } finally {
-    loading.value = false;
-  }
+  title: programData.value?.title || "",
+  slug: slug.value,
+  iconUrl: programData.value?.iconUrl || "",
+  description: programData.value?.description || "",
+  website: programData.value?.website || "",
+  content: programData.value?.content || "",
 });
 
 async function save() {

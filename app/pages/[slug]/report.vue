@@ -2,14 +2,7 @@
   <div class="min-h-screen flex flex-col lg:flex-row">
     <Loading v-if="status === 'pending'" class="flex-1" />
 
-    <Empty v-else-if="error" icon="tabler:alert-triangle" class="flex-1 flex items-center justify-center">
-      Program not found
-      <template #action>
-        <NuxtLink to="/programs" class="text-accent hover:underline">Back to programs</NuxtLink>
-      </template>
-    </Empty>
-
-    <template v-else-if="data">
+    <template v-if="data">
       <aside class="lg:w-96 xl:w-md lg:h-screen lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-r border-border bg-surface">
         <div class="lg:hidden p-4 border-b border-border">
           <button type="button" class="flex items-center justify-between w-full text-left" @click="showPolicy = !showPolicy">
@@ -49,7 +42,12 @@ const slug = route.params.slug as string;
 
 const showPolicy = ref(true);
 
-const { data, status, error } = await useFetch(`/api/programs/${slug}`);
+const { data, status } = await useFetch(`/api/programs/${slug}`);
+
+if (status.value === "error" || !data.value) {
+  throw createError({ statusCode: 404, statusMessage: "Program not found" });
+}
+
 const { data: block } = await useFetch<{ blocked: boolean; blockedUntil: string; reason: string }>("/api/me/block");
 
 useHead({

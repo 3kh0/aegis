@@ -321,8 +321,6 @@
         </div>
       </template>
     </template>
-
-    <div v-else class="text-center py-16 text-red-500">Report not found</div>
   </div>
 </template>
 
@@ -402,6 +400,10 @@ const { sevCls, statCls } = useStyle();
 const { busy, run } = useApi();
 
 const { data: report, status, refresh } = await useFetch<Report>(`/api/reports/${route.params.id}`);
+
+if (status.value === "error" || (!report.value && status.value !== "pending")) {
+  throw createError({ statusCode: 404, statusMessage: "Report not found" });
+}
 
 const msg = ref("");
 const joining = ref(false);
