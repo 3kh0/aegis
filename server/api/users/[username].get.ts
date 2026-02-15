@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
       id: true,
       username: true,
       verified: true,
+      deleted: true,
       description: true,
       website: true,
       github: true,
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (!u) {
+  if (!u || u.deleted) {
     throw createError({ status: 404, message: "User not found" });
   }
 

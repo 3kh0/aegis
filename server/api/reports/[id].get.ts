@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       severity: report.severity,
       status: report.status,
       createdAt: report.createdAt,
-      submittedBy: { username: report.submittedBy.username, verified: report.submittedBy.verified },
+      submittedBy: { username: report.submittedBy.deleted ? "[deleted]" : report.submittedBy.username, verified: report.submittedBy.deleted ? false : report.submittedBy.verified },
       needsBreakGlass: true,
       access,
     };
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     newValue: a.newValue,
     createdAt: a.createdAt,
     author: {
-      username: a.author.username,
+      username: a.author.deleted ? "[deleted]" : a.author.username,
       isAdmin: isAdmin(a.author.role),
       isGlobalAdmin: isGlobalAdmin(a.author.role),
       isOP: a.author.id === report.submittedById,
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
     severity: report.severity,
     status: report.status,
     createdAt: report.createdAt,
-    submittedBy: { username: report.submittedBy.username, verified: report.submittedBy.verified },
+    submittedBy: { username: report.submittedBy.deleted ? "[deleted]" : report.submittedBy.username, verified: report.submittedBy.deleted ? false : report.submittedBy.verified },
     program: report.program ? { slug: report.program.slug, title: report.program.title } : null,
     participants,
     activities,
@@ -104,7 +104,7 @@ function returnDisclosed(report: Record<string, unknown> & { activities?: Array<
     severity: report.severity,
     status: report.status,
     createdAt: report.createdAt,
-    submittedBy: { username: report.submittedBy.username, verified: report.submittedBy.verified },
+    submittedBy: { username: report.submittedBy.deleted ? "[deleted]" : report.submittedBy.username, verified: report.submittedBy.deleted ? false : report.submittedBy.verified },
     program: report.program ? { slug: report.program.slug, title: report.program.title } : null,
     disclosureType: report.disclosureType,
     disclosedAt: report.disclosedAt,
@@ -135,7 +135,7 @@ function returnDisclosed(report: Record<string, unknown> & { activities?: Array<
         oldValue: a.oldValue,
         newValue: a.newValue,
         createdAt: a.createdAt,
-        author: { username: a.author.username, isAdmin: isAdmin(a.author.role), isGlobalAdmin: isGlobalAdmin(a.author.role), isOP: a.author.id === report.submittedById },
+        author: { username: a.author.deleted ? "[deleted]" : a.author.username, isAdmin: isAdmin(a.author.role), isGlobalAdmin: isGlobalAdmin(a.author.role), isOP: a.author.id === report.submittedById },
       })) || [];
     return { ...base, description: report.description, activities, attachments: report.attachments };
   }

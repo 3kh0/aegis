@@ -4,7 +4,7 @@
       <h1 class="text-3xl font-bold">Personal Settings</h1>
     </div>
 
-    <div class="border border-border divide-y divide-border mb-8">
+    <div class="border border-border divide-y divide-border my-4">
       <div class="p-4 hover:bg-zinc-900/50 transition-colors group">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -84,7 +84,7 @@
       </div>
     </div>
 
-    <div class="mb-4">
+    <div class="my-4">
       <h2 class="text-xl font-semibold">Notification Preferences</h2>
       <p class="text-gray-500 text-sm mt-1">Choose how you want to be notified</p>
     </div>
@@ -121,6 +121,39 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="my-4">
+      <h2 class="text-xl font-semibold text-red-400">Danger Zone</h2>
+      <p class="text-gray-500 text-sm mt-1">Woah. I hope you know what are you doing.</p>
+    </div>
+
+    <div class="border border-red-500/30 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-medium text-red-400">Delete Account</p>
+          <p class="text-sm text-gray-500">This will permanently delete your account and all associated data. Reports you've submitted will be kept but anonymized. There is no way to recover your account after deletion.</p>
+        </div>
+        <button class="px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-600 transition-colors cursor-pointer shrink-0" @click="deleteModal = true">
+          Delete Account
+        </button>
+      </div>
+    </div>
+
+    <div v-if="deleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="deleteModal = false">
+      <div class="bg-surface border border-red-500 p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold text-red-400 font-display mb-2">Delete your account?</h3>
+        <p class="text-gray-400 text-sm mb-4">This action is permanent and cannot be undone. Your profile, notification preferences, and program memberships will be deleted. Reports you've submitted will remain but will show as submitted by a deleted user.</p>
+        <p class="text-gray-400 text-sm mb-4">Type <span class="text-white text-xs py-1 px-2 bg-surface-elevated font-mono">delete my account</span> to confirm:</p>
+        <input v-model="deleteConfirm" type="text" placeholder="delete my account" class="w-full px-3 py-2 bg-black border border-border focus:outline-none focus:border-red-500 transition-colors mb-4" />
+        <div class="flex justify-end gap-2">
+          <button class="px-4 py-2 text-gray-400 hover:text-white cursor-pointer" @click="deleteModal = false; deleteConfirm = ''">Cancel</button>
+          <button :disabled="deleteConfirm !== 'delete my account' || deleting" class="px-4 py-2 bg-red-500 text-white font-medium hover:bg-red-600 disabled:opacity-50 cursor-pointer flex items-center gap-2" @click="deleteAccount">
+            <Spinner v-if="deleting" size="16px" />
+            {{ deleting ? "Deleting..." : "Delete Account" }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -232,6 +265,22 @@ async function disconnectHCA() {
   hca.value = false;
   hackClubId.value = null;
   hcaLoading.value = false;
+}
+
+const deleteModal = ref(false);
+const deleteConfirm = ref("");
+const deleting = ref(false);
+
+async function deleteAccount() {
+  if (deleteConfirm.value !== "delete my account") return;
+  deleting.value = true;
+  try {
+    await $fetch("/api/user/account", { method: "DELETE" });
+    await useUserSession().clear();
+    await navigateTo("/");
+  } catch {
+    deleting.value = false;
+  }
 }
 
 useHead({ title: "Personal Settings" });
