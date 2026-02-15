@@ -14,8 +14,8 @@
         </p>
         <div v-else class="mb-8" />
         <div class="flex gap-3 justify-center">
-          <button class="px-3 py-1.5 bg-accent text-black font-medium transition-colors text-sm sm:text-base cursor-pointer" @click="handleError">Go Home</button>
-          <button class="px-3 py-1.5 bg-surface-elevated border border-border text-accent font-medium hover:bg-border transition-colors cursor-pointer" @click="reload">Try Again</button>
+          <button class="px-3 py-1.5 bg-accent text-black font-medium transition text-sm sm:text-base cursor-pointer active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100" @click="handleError">Go Home</button>
+          <button class="px-3 py-1.5 bg-surface-elevated border border-border text-accent font-medium hover:bg-border transition cursor-pointer active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100" @click="reload">Try Again</button>
         </div>
       </div>
     </main>
