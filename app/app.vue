@@ -31,8 +31,11 @@ onMounted(async () => {
   const e = !l || Date.now() - Number(l) > 24 * 60 * 60 * 1000;
 
   if (e) {
+    const w = loggedIn.value;
     await fetchSession();
-    localStorage.setItem("aegis-session", String(Date.now()));
+    if (w && loggedIn.value) {
+      localStorage.setItem("aegis-session", String(Date.now()));
+    }
   }
 });
 </script>
