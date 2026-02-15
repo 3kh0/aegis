@@ -61,6 +61,17 @@ export async function createReport(data: CreateReportData) {
       },
     });
 
+    const attachmentList = data.attachments || [];
+    for (const att of attachmentList) {
+      const filePath = att.url.replace(/^\/api\/files\//, "");
+      await tx.attachment.create({
+        data: {
+          path: filePath,
+          reportId: report.id,
+        },
+      });
+    }
+
     await tx.activity.create({
       data: {
         type: "SUBMITTED",

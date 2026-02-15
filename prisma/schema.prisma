@@ -87,6 +87,7 @@ model Report {
   program       Program?   @relation(fields: [programId], references: [id])
   programId     String?
   activities    Activity[]
+  attachmentRecords Attachment[]
 
   @@index([submittedById])
   @@index([programId])
@@ -109,6 +110,18 @@ model Activity {
 
   @@index([reportId])
   @@index([authorId])
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  path      String   @unique
+  reportId  String
+  createdAt DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([path])
 }
 
 enum ActivityType {
