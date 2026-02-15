@@ -24,8 +24,8 @@
               <div v-if="dd" class="absolute right-0 top-full mt-2 w-56 bg-surface border border-border shadow-xl shadow-black/20 z-50 origin-top-right will-change-transform">
                 <div v-if="!programs.length" class="p-4 text-gray-500 text-sm">No programs assigned</div>
                 <NuxtLink v-for="p in programs" v-else :key="p.id" :to="`/admin/programs/${p.slug}`" class="dd-item" @click="dd = false">
-                  <img v-if="p.iconUrl" :src="p.iconUrl" class="w-5 h-5 object-contain" />
-                  <Icon v-else name="tabler:building" size="20px" class="text-gray-500" />
+                  <img v-if="p.iconUrl" :src="p.iconUrl" width="20" height="20" class="w-5 h-5 object-contain" />
+                  <Icon v-else name="tabler:building" size="20px" class="text-gray-500 shrink-0" />
                   <span class="truncate">{{ p.title }}</span>
                 </NuxtLink>
               </div>
@@ -97,8 +97,8 @@
                 <div v-if="mobSub" class="pl-4 flex flex-col gap-0.5">
                   <div v-if="!programs.length" class="py-2 px-3 text-gray-500 text-sm">No programs assigned</div>
                   <NuxtLink v-for="p in programs" :key="p.id" :to="`/admin/programs/${p.slug}`" class="mob-link" @click="mob = false">
-                    <img v-if="p.iconUrl" :src="p.iconUrl" class="w-5 h-5 object-contain" />
-                    <Icon v-else name="tabler:building" size="18px" class="text-gray-500" />
+                    <img v-if="p.iconUrl" :src="p.iconUrl" width="20" height="20" class="w-5 h-5 object-contain" />
+                    <Icon v-else name="tabler:building" size="18px" class="text-gray-500 shrink-0" />
                     <span class="truncate">{{ p.title }}</span>
                   </NuxtLink>
                 </div>
