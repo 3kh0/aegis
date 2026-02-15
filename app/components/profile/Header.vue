@@ -67,7 +67,7 @@
 <script setup lang="ts">
 const p = defineProps<{
   username: string;
-  verified: boolean | false;
+  verified?: boolean | false;
   joined: string;
   description?: string | null;
   website?: string | null;
