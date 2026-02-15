@@ -86,8 +86,8 @@ interface Stats {
 
 const { data: program, status: programStatus } = await useFetch<Program>(`/api/programs/${slug.value}`);
 
-if (programStatus.value === 'error' || (!program.value && programStatus.value !== 'pending')) {
-  throw createError({ statusCode: 404, statusMessage: 'Program not found' });
+if (programStatus.value === "error" || (!program.value && programStatus.value !== "pending")) {
+  throw createError({ statusCode: 404, statusMessage: "Program not found" });
 }
 
 const { data: stats, pending: statsPending } = await useFetch<Stats>(() => `/api/programs/${slug.value}/stats`);

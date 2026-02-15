@@ -122,8 +122,8 @@ const { data: programData, status: programStatus } = await useFetch<{
   content: string | null;
 }>(`/api/programs/${slug.value}`);
 
-if (programStatus.value === 'error' || (!programData.value && programStatus.value !== 'pending')) {
-  throw createError({ statusCode: 404, statusMessage: 'Program not found' });
+if (programStatus.value === "error" || (!programData.value && programStatus.value !== "pending")) {
+  throw createError({ statusCode: 404, statusMessage: "Program not found" });
 }
 
 const loading = ref(false);

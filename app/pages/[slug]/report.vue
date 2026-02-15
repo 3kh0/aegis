@@ -44,8 +44,8 @@ const showPolicy = ref(true);
 
 const { data, status } = await useFetch(`/api/programs/${slug}`);
 
-if (status.value === 'error' || !data.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Program not found' });
+if (status.value === "error" || !data.value) {
+  throw createError({ statusCode: 404, statusMessage: "Program not found" });
 }
 
 const { data: block } = await useFetch<{ blocked: boolean; blockedUntil: string; reason: string }>("/api/me/block");
