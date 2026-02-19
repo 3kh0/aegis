@@ -29,7 +29,7 @@
     "marked": "^17.0.3",
     "nprogress": "^0.2.0",
     "nuxt": "^4.3.1",
-    "nuxt-auth-utils": "^0.5.28",
+    "nuxt-auth-utils": "^0.5.29",
     "prisma": "^7.4.0",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.28",
