@@ -24,7 +24,7 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@sentry/nuxt": "^10.38.0",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.2.1",
     "eslint": "^10.0.0",
     "marked": "^17.0.3",
     "nprogress": "^0.2.0",
