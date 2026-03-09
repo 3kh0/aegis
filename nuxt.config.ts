@@ -86,7 +86,7 @@ export default defineNuxtConfig({
       clientId: process.env.NUXT_HACKCLUB_CLIENT_ID,
       clientSecret: process.env.NUXT_HACKCLUB_CLIENT_SECRET,
     },
-    
+
     slack: {
       clientId: String(process.env.NUXT_SLACK_CLIENT_ID || ""),
       clientSecret: String(process.env.NUXT_SLACK_CLIENT_SECRET || ""),
