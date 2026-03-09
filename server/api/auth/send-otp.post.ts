@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const code = generateOTP();
   const token = await storeOTP(email, code);
 
-  await sendOTPEmail(email, code, token);
+  await sendOTPEmail(event, email, code, token);
 
   return { success: true };
 });

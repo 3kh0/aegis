@@ -17,7 +17,7 @@ export async function notify(p: NotifyParams): Promise<void> {
   const cfg = notifications[p.type];
   if (!cfg) return;
 
-  const base = useRuntimeConfig().siteUrl || "http://localhost:3000";
+  const base = getBaseUrl();
   const ctx = await buildCtx(p, base);
   const recs = await getRecipients(cfg.recipients, p, p.actorId);
   if (!recs.length) return;

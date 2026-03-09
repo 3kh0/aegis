@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const clientId = process.env.NUXT_SLACK_CLIENT_ID;
   const clientSecret = process.env.NUXT_SLACK_CLIENT_SECRET;
-  const { siteUrl } = useRuntimeConfig(event);
+  const base = getBaseUrl(event);
   const q = getQuery(event);
 
   if (q.error) return sendRedirect(event, err(q.error as string));
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
       client_id: clientId,
       client_secret: clientSecret,
       code: q.code as string,
-      redirect_uri: `${siteUrl}/api/auth/slack/callback`,
+      redirect_uri: `${base}/api/auth/slack/callback`,
     });
 
     const tok = await $fetch<{ ok: boolean; authed_user?: { id: string }; error?: string }>("https://slack.com/api/oauth.v2.access", {

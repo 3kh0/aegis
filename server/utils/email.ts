@@ -1,7 +1,9 @@
-export async function sendOTPEmail(email: string, code: string, magicToken: string): Promise<void> {
+import type { H3Event } from "h3";
+
+export async function sendOTPEmail(event: H3Event, email: string, code: string, magicToken: string): Promise<void> {
   const config = useRuntimeConfig();
   const r = config.resendApiKey;
-  const u = config.siteUrl || "http://localhost:3000";
+  const u = getBaseUrl(event);
   const x = `${u}/auth/verify?x=${encodeURIComponent(email)}&c=${code}&t=${encodeURIComponent(magicToken)}`;
 
   if (!r) {

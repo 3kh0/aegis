@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import type { H3Event } from "h3";
 import { prisma } from "../../prisma/db";
 
 export async function init(userId: string, newEmail: string): Promise<string> {
@@ -45,10 +46,10 @@ export async function verify(token: string): Promise<{ userId: string; oldEmail:
   return { userId: user.id, oldEmail, newEmail };
 }
 
-export async function sendVerification(newEmail: string, token: string): Promise<void> {
+export async function sendVerification(event: H3Event, newEmail: string, token: string): Promise<void> {
   const config = useRuntimeConfig();
   const r = config.resendApiKey;
-  const u = config.siteUrl || "http://localhost:3000";
+  const u = getBaseUrl(event);
   const v = `${u}/api/auth/verify-email?t=${encodeURIComponent(token)}`;
 
   if (!r) {

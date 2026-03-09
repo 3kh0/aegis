@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const token = await init(s.user.id, newEmail);
-  await sendVerification(newEmail, token);
+  await sendVerification(event, newEmail, token);
 
   return { success: true };
 });
