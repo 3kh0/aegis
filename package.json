@@ -25,7 +25,7 @@
     "@prisma/client": "^7.4.2",
     "@sentry/nuxt": "^10.42.0",
     "@tailwindcss/vite": "^4.2.1",
-    "eslint": "^10.0.0",
+    "eslint": "^10.0.3",
     "marked": "^17.0.3",
     "nprogress": "^0.2.0",
     "nuxt": "^4.3.1",
