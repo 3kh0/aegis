@@ -81,6 +81,7 @@ model Report {
   disclosedById      String?
   adminSummary       String?    @db.VarChar(10000)
   reporterSummary    String?    @db.VarChar(10000)
+  githubAdvisory     String?
 
   submittedBy   User       @relation(fields: [submittedById], references: [id])
   submittedById String

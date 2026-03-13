@@ -31,6 +31,14 @@
             <p class="text-sm text-gray-400">{{ report.disclosureType === "FULL" ? "The team opted for a full disclosure. This means that all contents of the report are visible, including description, comments, and attachments." : "The team opted for a summarized disclosure. This means that only summaries provided by the program and reporter are visible. This helps protect sensitive information while still providing transparency." }}</p>
           </div>
         </div>
+        <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="bg-surface border border-border p-4 flex items-center gap-3 hover:border-accent transition-colors">
+          <Icon name="tabler:brand-github" size="24" class="text-gray-400 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <p class="font-medium">GitHub Security Advisory</p>
+            <p class="text-sm text-gray-400 truncate">{{ report.githubAdvisory }}</p>
+          </div>
+          <Icon name="tabler:external-link" size="18" class="text-gray-400 shrink-0" />
+        </a>
 
         <div class="bg-surface border border-border p-6">
           <div class="flex items-start justify-between gap-4 mb-4">
@@ -190,6 +198,9 @@
                 <Icon name="tabler:switch-horizontal" size="16px" />
               </button>
             </span>
+            <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-accent hover:underline">
+              <Icon name="tabler:brand-github" size="16px" class="shrink-0" /> Advisory
+            </a>
             <span v-if="report.participants?.length" class="inline-flex items-center flex-wrap">
               <Icon name="tabler:users" size="16px" class="inline mr-1 align-text-bottom" />
               <template v-for="(p, i) in report.participants" :key="p.userId">
@@ -266,6 +277,21 @@
               {{ savingSummary ? "Saving..." : "Save Summary" }}
             </button>
           </div>
+        </div>
+
+        <div v-if="report.disclosureType && report.access?.canDisclose" class="bg-surface border border-border p-6 mb-8">
+          <h3 class="text-lg font-bold font-display mb-4">GitHub Security Advisory</h3>
+          <p class="text-gray-400 text-sm mb-4">Link this report to a GitHub Security Advisory. The advisory provides a high-level summary on GitHub while the full details live here on Aegis.</p>
+          <div class="flex gap-2">
+            <input v-model="advisoryUrl" type="url" placeholder="https://github.com/hackclub/repo/security/advisories/GHSA-..." class="flex-1 px-4 py-2 bg-surface border border-border text-sm font-mono focus:outline-none focus:border-accent transition-colors" />
+            <button :disabled="savingAdvisory" class="px-4 py-2 bg-accent text-black font-medium disabled:opacity-50 cursor-pointer flex items-center gap-2" @click="saveAdvisory">
+              <Spinner v-if="savingAdvisory" class="h-4 w-4" />
+              {{ savingAdvisory ? "Saving..." : "Save" }}
+            </button>
+          </div>
+          <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-sm text-accent hover:underline mt-3">
+            <Icon name="tabler:external-link" size="14" /> {{ report.githubAdvisory }}
+          </a>
         </div>
 
         <div class="mt-6">
@@ -375,6 +401,7 @@ interface Report {
   disclosedAt?: string;
   adminSummary?: string;
   reporterSummary?: string;
+  githubAdvisory?: string;
   submittedBy?: { username?: string | null; verified?: boolean };
   program?: { slug: string; title: string };
   participants?: Participant[];
@@ -425,6 +452,8 @@ const disclosureType = ref<"FULL" | "SUMMARIZED">("SUMMARIZED");
 const disclosing = ref(false);
 const summaryText = ref("");
 const savingSummary = ref(false);
+const advisoryUrl = ref(report.value?.githubAdvisory || "");
+const savingAdvisory = ref(false);
 
 const actIcons = {
   SUBMITTED: "tabler:send",
@@ -568,6 +597,19 @@ async function disclose() {
     await refresh();
   } finally {
     disclosing.value = false;
+  }
+}
+
+async function saveAdvisory() {
+  savingAdvisory.value = true;
+  try {
+    await $fetch(`/api/reports/${route.params.id}/advisory`, {
+      method: "PATCH",
+      body: { url: advisoryUrl.value },
+    });
+    await refresh();
+  } finally {
+    savingAdvisory.value = false;
   }
 }
 

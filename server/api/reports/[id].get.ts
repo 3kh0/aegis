@@ -93,6 +93,7 @@ export default defineEventHandler(async (event) => {
     disclosedAt: report.disclosedAt,
     adminSummary: report.adminSummary,
     reporterSummary: report.reporterSummary,
+    githubAdvisory: report.githubAdvisory,
     access,
   };
 });
@@ -108,6 +109,7 @@ function returnDisclosed(report: Record<string, unknown> & { activities?: Array<
     program: report.program ? { slug: report.program.slug, title: report.program.title } : null,
     disclosureType: report.disclosureType,
     disclosedAt: report.disclosedAt,
+    githubAdvisory: report.githubAdvisory,
     disclosed: true,
     access: {
       canView: false,
