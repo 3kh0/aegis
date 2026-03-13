@@ -199,7 +199,7 @@
               </button>
             </span>
             <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-accent hover:underline">
-              <Icon name="tabler:brand-github" size="16px" class="shrink-0" /> Advisory
+              <Icon name="tabler:brand-github" size="16px" class="shrink-0 text-gray-500" /> Advisory
             </a>
             <span v-if="report.participants?.length" class="inline-flex items-center flex-wrap">
               <Icon name="tabler:users" size="16px" class="inline mr-1 align-text-bottom" />
