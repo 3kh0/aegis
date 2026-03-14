@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import type { Otp } from "@prisma/client";
 import { prisma } from "../../prisma/db";
 
 const EXPIRY_MIN = 5;
@@ -16,7 +17,7 @@ function compare(a: string, b: string): boolean {
   return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
 }
 
-async function isValid(otp): Promise<boolean> {
+async function isValid(otp: Otp): Promise<boolean> {
   const expired = otp.expiresAt <= new Date() || otp.failedAttempts >= MAX_ATTEMPTS;
   if (expired) await prisma.otp.delete({ where: { id: otp.id } });
   return !expired && !otp.consumedAt;
