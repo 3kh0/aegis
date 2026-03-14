@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { Severity, ReportStatus } from "../../prisma/db";
+import { fileInfoSchema } from "~~/shared/schemas";
+
+export { fileInfoSchema };
 
 export const programSchema = z.object({
   title: z.string().min(1).max(200),
@@ -12,12 +15,6 @@ export const programSchema = z.object({
   description: z.string().min(1).max(500),
   website: z.string().url().optional().or(z.literal("")),
   content: z.string().optional(),
-});
-
-export const fileInfoSchema = z.object({
-  url: z.string(),
-  name: z.string(),
-  size: z.number(),
 });
 
 export const reportSchema = z.object({

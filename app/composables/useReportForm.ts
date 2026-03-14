@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { fileInfoSchema, type FileInfo } from "~~/shared/schemas";
+
+export type { FileInfo };
 
 export const severityInfo = {
   LOW: { label: "Low", desc: "Minor issue with limited impact", color: "text-blue-400" },
@@ -6,14 +9,6 @@ export const severityInfo = {
   HIGH: { label: "High", desc: "Significant impact, potentially exploitable", color: "text-orange-400" },
   CRITICAL: { label: "Critical", desc: "Severe impact, actively exploitable", color: "text-red-400" },
 } as const;
-
-export const fileInfoSchema = z.object({
-  url: z.string(),
-  name: z.string(),
-  size: z.number(),
-});
-
-export type FileInfo = z.infer<typeof fileInfoSchema>;
 
 export const reportFormSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(200),
