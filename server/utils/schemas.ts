@@ -2,8 +2,6 @@ import { z } from "zod";
 import { Severity, ReportStatus } from "../../prisma/db";
 import { fileInfoSchema } from "~~/shared/schemas";
 
-export { fileInfoSchema };
-
 export const programSchema = z.object({
   title: z.string().min(1).max(200),
   slug: z
