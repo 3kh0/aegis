@@ -198,9 +198,7 @@
                 <Icon name="tabler:switch-horizontal" size="16px" />
               </button>
             </span>
-            <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-accent hover:underline">
-              <Icon name="tabler:brand-github" size="16px" class="shrink-0 text-gray-500" /> Advisory
-            </a>
+            <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-accent hover:underline"> <Icon name="tabler:brand-github" size="16px" class="shrink-0 text-gray-500" /> Advisory </a>
             <span v-if="report.participants?.length" class="inline-flex items-center flex-wrap">
               <Icon name="tabler:users" size="16px" class="inline mr-1 align-text-bottom" />
               <template v-for="(p, i) in report.participants" :key="p.userId">
@@ -289,9 +287,7 @@
               {{ savingAdvisory ? "Saving..." : "Save" }}
             </button>
           </div>
-          <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-sm text-accent hover:underline mt-3">
-            <Icon name="tabler:external-link" size="14" /> {{ report.githubAdvisory }}
-          </a>
+          <a v-if="report.githubAdvisory" :href="report.githubAdvisory" target="_blank" class="inline-flex items-center gap-1 text-sm text-accent hover:underline mt-3"> <Icon name="tabler:external-link" size="14" /> {{ report.githubAdvisory }} </a>
         </div>
 
         <div class="mt-6">

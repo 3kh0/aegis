@@ -99,9 +99,9 @@
               <td class="p-3 text-right text-accent font-bold align-top">$25</td>
             </tr>
             <tr class="border-b border-border">
-                <td class="p-3 pl-6 text-gray-300 align-top">Open redirect</td>
-                <td class="p-3 text-gray-400 align-top">Unvalidated redirects that could be used in phishing attacks</td>
-                <td class="p-3 text-right text-accent font-bold align-top">$15</td>
+              <td class="p-3 pl-6 text-gray-300 align-top">Open redirect</td>
+              <td class="p-3 text-gray-400 align-top">Unvalidated redirects that could be used in phishing attacks</td>
+              <td class="p-3 text-right text-accent font-bold align-top">$15</td>
             </tr>
           </tbody>
         </table>
