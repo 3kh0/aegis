@@ -209,7 +209,7 @@ const slack = ref(slackData.value?.connected ?? false);
 const hca = ref(hcaData.value?.connected ?? false);
 const hackClubId = ref(hcaData.value?.hackClubId ?? null);
 const hcaLoading = ref(false);
-const prefs = ref<NotificationPrefs>(prefsData.value ?? Object.fromEntries(notifTypes.map((n) => [n.key, { email: true, slack: false }])) as NotificationPrefs);
+const prefs = ref<NotificationPrefs>(prefsData.value ?? (Object.fromEntries(notifTypes.map((n) => [n.key, { email: true, slack: false }])) as NotificationPrefs));
 const loading = ref(false);
 
 const showEmailChange = ref(false);
