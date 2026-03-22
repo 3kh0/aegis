@@ -1,9 +1,11 @@
-import { requireParam, requireProgram, requireProgramAccess } from "../../../utils/api";
+import { prisma } from "../../../../prisma/db";
+import { requireParam, requireProgramAccess } from "../../../utils/api";
 
 export default defineEventHandler(async (event) => {
   const slug = requireParam(event, "slug");
   await requireProgramAccess(event, slug);
-  const p = await requireProgram(slug, {
+  const program = await prisma.program.findUnique({
+    where: { slug },
     include: {
       members: {
         include: {
@@ -12,11 +14,12 @@ export default defineEventHandler(async (event) => {
       },
     },
   });
+  if (!program) throw createError({ status: 404, message: "Program not found" });
 
-  return (p as any).members.map((m: any) => ({
-    id: m.user.id,
-    email: m.user.email,
-    username: m.user.username,
-    joinedAt: m.createdAt,
+  return program.members.map((member) => ({
+    id: member.user.id,
+    email: member.user.email,
+    username: member.user.username,
+    joinedAt: member.createdAt,
   }));
 });

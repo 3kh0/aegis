@@ -1,7 +1,20 @@
 import { getReportWithAccessCheck, isAdmin, isGlobalAdmin } from "../../utils/permissions";
 import { requireParam } from "../../utils/api";
 import type { UserRole } from "../../../prisma/db";
+import type { Prisma } from "../../../prisma/generated/client";
 import { prisma } from "../../../prisma/db";
+
+type DisclosedReport = Prisma.ReportGetPayload<{
+  include: {
+    submittedBy: true;
+    program: true;
+    activities: {
+      include: {
+        author: true;
+      };
+    };
+  };
+}>;
 
 export default defineEventHandler(async (event) => {
   const id = requireParam(event, "id");
@@ -97,7 +110,7 @@ export default defineEventHandler(async (event) => {
   };
 });
 
-function returnDisclosed(report: Record<string, any> & { activities?: Array<Record<string, any> & { author: Record<string, any> }> }) {
+function returnDisclosed(report: DisclosedReport) {
   const base = {
     id: report.id,
     title: report.title,
