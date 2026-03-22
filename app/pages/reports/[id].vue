@@ -424,6 +424,8 @@ const route = useRoute();
 const { ago, statLabel } = useFormat();
 const { sevCls, statCls } = useStyle();
 const { busy, run } = useApi();
+type ReportRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as ReportRequest;
 
 const { data: report, status, refresh } = await useFetch<Report>(`/api/reports/${route.params.id}`);
 
@@ -490,7 +492,7 @@ function trimName(name: string, max = 32): string {
 async function breakGlass() {
   joining.value = true;
   try {
-    await $fetch(`/api/reports/${route.params.id}/join`, { method: "POST" });
+    await request(`/api/reports/${route.params.id}/join`, { method: "POST" });
     await refresh();
   } finally {
     joining.value = false;
@@ -500,7 +502,7 @@ async function breakGlass() {
 async function comment() {
   if (!msg.value.trim()) return;
   await run(async () => {
-    await $fetch(`/api/reports/${route.params.id}/activities`, {
+    await request(`/api/reports/${route.params.id}/activities`, {
       method: "POST",
       body: { type: "COMMENT", content: msg.value },
     });
@@ -511,7 +513,7 @@ async function comment() {
 
 async function setSev(v: string) {
   sevOpen.value = false;
-  await $fetch(`/api/reports/${route.params.id}/activities`, {
+  await request(`/api/reports/${route.params.id}/activities`, {
     method: "POST",
     body: { type: "SEVERITY_CHANGED", value: v },
   });
@@ -520,7 +522,7 @@ async function setSev(v: string) {
 
 async function setStat(v: string) {
   statOpen.value = false;
-  await $fetch(`/api/reports/${route.params.id}/activities`, {
+  await request(`/api/reports/${route.params.id}/activities`, {
     method: "POST",
     body: { type: "STATUS_CHANGED", value: v },
   });
@@ -535,7 +537,7 @@ function startEditTitle() {
 async function saveTitle() {
   if (!newTitle.value.trim() || newTitle.value === report.value?.title) return;
   await run(async () => {
-    await $fetch(`/api/reports/${route.params.id}/activities`, {
+    await request(`/api/reports/${route.params.id}/activities`, {
       method: "POST",
       body: { type: "TITLE_CHANGED", value: newTitle.value },
     });
@@ -563,7 +565,7 @@ async function openReassign() {
   reassignOpen.value = true;
   loadingPrograms.value = true;
   try {
-    programs.value = await $fetch<Program[]>("/api/programs");
+    programs.value = await request<Program[]>("/api/programs");
     const curr = report.value?.program;
     selectedProgram.value = curr ? programs.value.find((p) => p.slug === curr.slug)?.id || "" : "";
   } finally {
@@ -574,7 +576,7 @@ async function openReassign() {
 async function reassign() {
   reassigning.value = true;
   try {
-    await $fetch(`/api/reports/${route.params.id}/program`, {
+    await request(`/api/reports/${route.params.id}/program`, {
       method: "PATCH",
       body: { programId: selectedProgram.value || null },
     });
@@ -588,7 +590,7 @@ async function reassign() {
 async function disclose() {
   disclosing.value = true;
   try {
-    await $fetch(`/api/reports/${route.params.id}/disclosure`, {
+    await request(`/api/reports/${route.params.id}/disclosure`, {
       method: "PATCH",
       body: { type: disclosureType.value },
     });
@@ -602,7 +604,7 @@ async function disclose() {
 async function saveAdvisory() {
   savingAdvisory.value = true;
   try {
-    await $fetch(`/api/reports/${route.params.id}/advisory`, {
+    await request(`/api/reports/${route.params.id}/advisory`, {
       method: "PATCH",
       body: { url: advisoryUrl.value },
     });
@@ -616,7 +618,7 @@ async function saveSummary() {
   if (!summaryText.value.trim()) return;
   savingSummary.value = true;
   try {
-    await $fetch(`/api/reports/${route.params.id}/disclosure-summary`, {
+    await request(`/api/reports/${route.params.id}/disclosure-summary`, {
       method: "PATCH",
       body: { summary: summaryText.value },
     });

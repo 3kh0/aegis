@@ -76,6 +76,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     session: {
+      password: process.env.NUXT_SESSION_PASSWORD || "",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     },
     resendApiKey: process.env.NUXT_RESEND_API_KEY,

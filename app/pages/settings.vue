@@ -169,6 +169,9 @@ definePageMeta({ middleware: "auth" });
 
 const { user } = useUserSession();
 const route = useRoute();
+type NotificationPrefs = Record<string, Record<string, boolean>>;
+type SettingsRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as SettingsRequest;
 
 const notifTypes = [
   { key: "COMMENT_ADDED", label: "New comments", desc: "When someone comments on your report" },
@@ -200,13 +203,13 @@ const errorMsgs: Record<string, string> = {
 // SSR fetch - no client flashes
 const { data: slackData } = await useFetch<{ connected: boolean }>("/api/user/slack-status");
 const { data: hcaData } = await useFetch<{ connected: boolean; hackClubId: string | null }>("/api/user/hca-status");
-const { data: prefsData } = await useFetch<Record<string, Record<string, boolean>>>("/api/profile/notifications");
+const { data: prefsData } = await useFetch<NotificationPrefs>("/api/profile/notifications");
 
 const slack = ref(slackData.value?.connected ?? false);
 const hca = ref(hcaData.value?.connected ?? false);
 const hackClubId = ref(hcaData.value?.hackClubId ?? null);
 const hcaLoading = ref(false);
-const prefs = ref(prefsData.value ?? Object.fromEntries(notifTypes.map((n) => [n.key, { email: true }])));
+const prefs = ref<NotificationPrefs>(prefsData.value ?? (Object.fromEntries(notifTypes.map((n) => [n.key, { email: true, slack: false }])) as NotificationPrefs));
 const loading = ref(false);
 
 const showEmailChange = ref(false);
@@ -220,7 +223,7 @@ async function changeEmail() {
   emailError.value = null;
   emailSuccess.value = false;
   try {
-    await $fetch("/api/profile/email", { method: "POST", body: { email: newEmail.value } });
+    await request("/api/profile/email", { method: "POST", body: { email: newEmail.value } });
     emailSuccess.value = true;
     newEmail.value = "";
   } catch (e: unknown) {
@@ -253,7 +256,7 @@ async function toggle(type: string, channel: string) {
   const current = prefs.value[type]?.[channel] ?? def;
   prefs.value[type] = { ...prefs.value[type], [channel]: !current };
   try {
-    await $fetch("/api/profile/notifications", { method: "PATCH", body: { type, channel, enabled: !current } });
+    await request("/api/profile/notifications", { method: "PATCH", body: { type, channel, enabled: !current } });
   } catch {
     prefs.value[type] = { ...prefs.value[type], [channel]: current };
   }
@@ -261,14 +264,14 @@ async function toggle(type: string, channel: string) {
 
 async function disconnectSlack() {
   loading.value = true;
-  await $fetch("/api/auth/slack/disconnect", { method: "DELETE" });
+  await request("/api/auth/slack/disconnect", { method: "DELETE" });
   slack.value = false;
   loading.value = false;
 }
 
 async function disconnectHCA() {
   hcaLoading.value = true;
-  await $fetch("/api/auth/hackclub/disconnect", { method: "DELETE" });
+  await request("/api/auth/hackclub/disconnect", { method: "DELETE" });
   hca.value = false;
   hackClubId.value = null;
   hcaLoading.value = false;
@@ -282,7 +285,7 @@ async function deleteAccount() {
   if (deleteConfirm.value !== "delete my account") return;
   deleting.value = true;
   try {
-    await $fetch("/api/user/account", { method: "DELETE" });
+    await request("/api/user/account", { method: "DELETE" });
     await useUserSession().clear();
     await navigateTo("/");
   } catch {

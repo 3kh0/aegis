@@ -112,6 +112,16 @@ definePageMeta({
 
 const route = useRoute();
 const slug = computed(() => route.params.slug as string);
+const { user, fetch: fetchSession } = useUserSession();
+type ProgramMemberRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as ProgramMemberRequest;
+
+interface Member {
+  id: string;
+  email: string;
+  username: string | null;
+  joinedAt: string;
+}
 
 const { busy, err, run } = useApi();
 const { data: programData, status: programStatus } = await useFetch<{
@@ -139,7 +149,7 @@ const form = reactive({
 
 async function save() {
   const res = await run(() =>
-    $fetch<{ slug: string }>(`/api/programs/${slug.value}`, {
+    request<{ slug: string }>(`/api/programs/${slug.value}`, {
       method: "PUT",
       body: form,
     }),
@@ -167,7 +177,7 @@ async function addMember(force = false) {
   confirmNew.value = false;
 
   try {
-    await $fetch(`/api/programs/${slug.value}/members`, {
+    await request(`/api/programs/${slug.value}/members`, {
       method: "POST",
       body: { emailOrUsername: q, force },
     });
@@ -199,7 +209,7 @@ function cancelAddNew() {
 
 async function delMember(id: string) {
   try {
-    const res = await $fetch<{ ok: boolean; demoted: boolean }>(`/api/programs/${slug.value}/members/${id}`, { method: "DELETE" });
+    const res = await request<{ ok: boolean; demoted: boolean }>(`/api/programs/${slug.value}/members/${id}`, { method: "DELETE" });
     if (res.demoted && id === user.value?.id) {
       await fetchSession();
       return navigateTo("/dashboard");

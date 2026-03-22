@@ -89,6 +89,8 @@ const form = reactive({
   github: p.github || "",
   publicEmail: p.publicEmail || "",
 });
+type ProfileRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as ProfileRequest;
 
 const saving = ref(false);
 const saved = ref(false);
@@ -109,7 +111,7 @@ watch(
 async function save() {
   saving.value = true;
   try {
-    await $fetch("/api/profile", { method: "PATCH", body: form });
+    await request("/api/profile", { method: "PATCH", body: form });
     saved.value = true;
     emit("saved", { ...form });
     setTimeout(() => (saved.value = false), 2000);

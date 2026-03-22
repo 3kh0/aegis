@@ -26,9 +26,9 @@ export const MIMES = new Set(Object.values(EXT_MIME));
 export const ext = (url: string) => url.split(".").pop()?.toLowerCase() || "";
 export const isImg = (url: string) => IMG_EXTS.includes(ext(url));
 export const isVid = (url: string) => VID_EXTS.includes(ext(url));
-export const mimeOk = (m: string) => MIMES.has(m.split(";")[0].trim());
+export const mimeOk = (m: string) => MIMES.has((m.split(";")[0] ?? "").trim());
 export const mime = (e?: string) => EXT_MIME[e?.toLowerCase() || ""] || "application/octet-stream";
-export const extFor = (m: string) => MIME_EXT[m.split(";")[0].trim()];
+export const extFor = (m: string) => MIME_EXT[(m.split(";")[0] ?? "").trim()];
 
 export function fmtSize(b: number): string {
   if (b < 1024) return `${b} B`;

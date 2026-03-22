@@ -7,10 +7,10 @@ export default defineEventHandler(async (event) => {
   const prefs = await prisma.notificationPreference.findMany({ where: { userId: id } });
 
   const result: Record<string, Record<string, boolean>> = {};
-  for (const t of Object.keys(notifications)) result[t] = { email: true };
+  for (const t of Object.keys(notifications)) result[t] = { email: true, slack: false };
   for (const p of prefs) {
-    result[p.type] ??= {};
-    result[p.type][p.channel] = p.enabled;
+    const channels = (result[p.type] ??= {});
+    channels[p.channel] = p.enabled;
   }
 
   return result;

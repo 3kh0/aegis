@@ -31,10 +31,11 @@
             <Badge type="severity" :value="r.severity" />
           </td>
           <td class="px-4 py-3 text-sm text-gray-400">
-            <NuxtLink :to="`/@${r.submittedBy.username}`" class="flex items-center whitespace-nowrap">
+            <NuxtLink v-if="r.submittedBy.username" :to="`/@${r.submittedBy.username}`" class="flex items-center whitespace-nowrap">
               {{ r.submittedBy.username }}
               <Icon v-if="r.submittedBy.verified" name="tabler:discount-check-filled" size="16" class="text-accent ml-1" title="This user has proven to submit high quality reports" />
             </NuxtLink>
+            <span v-else class="whitespace-nowrap">{{ r.submittedBy.email || "Unknown user" }}</span>
           </td>
           <td class="px-4 py-3 text-sm text-gray-500">
             {{ date(r.createdAt) }}
@@ -62,9 +63,9 @@ interface Report {
   title: string;
   status: string;
   severity: string;
-  createdAt: string;
-  submittedBy: { email: string; username: string | null; verified?: boolean };
-  program?: { slug: string; title: string };
+  createdAt: string | Date;
+  submittedBy: { email?: string; username: string | null; verified?: boolean };
+  program?: { slug: string; title: string } | null;
 }
 
 defineProps<{

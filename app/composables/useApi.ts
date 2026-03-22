@@ -7,8 +7,9 @@ export function useApi() {
     err.value = "";
     try {
       return await fn();
-    } catch (e) {
-      err.value = e.data?.message || e.message || "Something went wrong";
+    } catch (e: unknown) {
+      const error = e as { data?: { message?: string }; message?: string };
+      err.value = error.data?.message || error.message || "Something went wrong";
       return null;
     } finally {
       busy.value = false;

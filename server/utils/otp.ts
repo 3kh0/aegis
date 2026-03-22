@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { Otp } from "@prisma/client";
+import type { Otp } from "../../prisma/generated/client";
 import { prisma } from "../../prisma/db";
 
 const EXPIRY_MIN = 5;

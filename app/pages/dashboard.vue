@@ -2,7 +2,7 @@
   <div class="max-w-6xl mx-auto px-4 py-8">
     <div v-if="block?.blocked" class="p-4 mb-6 bg-danger/25 border border-danger text-danger">
       <p class="font-medium">You are currently blocked from submitting reports. Please review our <NuxtLink to="/rules" class="underline">rules</NuxtLink> to prevent this from happening again. You will be able to submit new reports once your block expires.</p>
-      <p class="text-sm mt-1">Block expires on {{ new Date(block.blockedUntil).toLocaleDateString() }} — Reason: {{ block.reason }}</p>
+      <p class="text-sm mt-1">Block expires on {{ blockExpiry }} — Reason: {{ block.reason }}</p>
     </div>
 
     <div class="flex items-center justify-between mb-8">
@@ -10,7 +10,7 @@
         <h1 class="text-3xl font-bold">Dashboard</h1>
         <p class="text-gray-400 mt-1">See your reports all in one place</p>
       </div>
-      <NuxtLink to="/programs" class="px-4 py-2 bg-accent text-black font-medium transition-colors flex items-center gap-2" :aria-disabled="block?.blocked" :tabindex="block?.blocked ? -1 : 0" :class="{ 'opacity-50 pointer-events-none cursor-not-allowed': block?.blocked }">
+      <NuxtLink to="/programs" class="px-4 py-2 bg-accent text-black font-medium transition-colors flex items-center gap-2" :aria-disabled="block?.blocked || undefined" :tabindex="block?.blocked ? -1 : 0" :class="{ 'opacity-50 pointer-events-none cursor-not-allowed': block?.blocked }">
         <Icon name="tabler:send" size="18px" class="inline-block" />
         <span>New Report</span>
       </NuxtLink>
@@ -61,7 +61,7 @@
               </span>
               <span class="text-gray-500 flex items-center gap-1">
                 <Icon name="tabler:user" size="18px" />
-                {{ r.submittedBy.username }}
+                {{ r.submittedBy.username || "Unknown user" }}
               </span>
               <span v-if="r.program" class="text-gray-500 flex items-center gap-1">
                 <Icon name="tabler:cube" size="18px" />
@@ -80,6 +80,27 @@ definePageMeta({
   middleware: "auth",
 });
 
+interface DashboardReport {
+  id: string;
+  title: string;
+  severity: string;
+  status: string;
+  createdAt: string | Date;
+  submittedBy: {
+    username: string | null;
+    verified: boolean;
+  };
+  program: {
+    title: string;
+  } | null;
+}
+
+interface BlockStatus {
+  blocked: boolean;
+  blockedUntil: string | null;
+  reason: string | null;
+}
+
 const { user } = useUserSession();
 if (!user.value?.username) {
   navigateTo("/auth/welcome");
@@ -87,11 +108,12 @@ if (!user.value?.username) {
 
 const { date } = useFormat();
 
-const { data: list, status } = await useFetch("/api/reports");
-const { data: block } = await useFetch("/api/me/block");
+const { data: list, status } = await useFetch<DashboardReport[]>("/api/reports");
+const { data: block } = await useFetch<BlockStatus>("/api/me/block");
 
 const tab = ref<"open" | "closed">("open");
 const q = ref("");
+const blockExpiry = computed(() => (block.value?.blockedUntil ? new Date(block.value.blockedUntil).toLocaleDateString() : ""));
 
 const items = computed(() => {
   if (!list.value) return [];
