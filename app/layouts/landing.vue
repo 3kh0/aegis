@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-screen text-white flex flex-col">
     <NotProd />
-    <canvas v-if="!reduced" ref="canvas" class="absolute top-10 left-0 w-full max-h-screen -z-10" />
+    <canvas v-if="!reduced" ref="canvas" class="absolute top-10 left-0 w-full max-h-screen -z-10 transition-all duration-[1.8s] ease-out" :class="ready ? 'opacity-100 scale-100' : 'opacity-0 scale-90'" />
     <Nav class="relative z-50" />
     <main class="flex-1 relative z-10 flex items-center justify-center">
       <slot />
@@ -13,6 +13,7 @@
 <script setup>
 const canvas = ref(null);
 const reduced = ref(false);
+const ready = ref(false);
 
 class Dot {
   x;
@@ -107,7 +108,10 @@ onMounted(() => {
 
   resize();
   window.addEventListener("resize", resize);
-  animId = requestAnimationFrame(render);
+  animId = requestAnimationFrame((t) => {
+    render(t);
+    ready.value = true;
+  });
 
   onUnmounted(() => {
     cancelAnimationFrame(animId);
