@@ -46,13 +46,15 @@ const route = useRoute();
 const emailChange = computed(() => route.query.ec === "true");
 
 const { busy, err, run } = useApi();
+type AuthRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as AuthRequest;
 
 const email = ref("");
 const hcBusy = ref(false);
 
 async function sendOtp() {
   const res = await run(() =>
-    $fetch("/api/auth/send-otp", {
+    request("/api/auth/send-otp", {
       method: "POST",
       body: { email: email.value },
     }),

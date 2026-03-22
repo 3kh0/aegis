@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     setHeader(event, "Content-Disposition", "inline");
     setHeader(event, "Cache-Control", report.disclosureType ? "public, max-age=3600" : "private, max-age=3600");
     if (contentLength) setHeader(event, "Content-Length", contentLength);
-    return sendWebStream(event, stream);
+    return sendStream(event, stream);
   } catch {
     throw createError({ status: 404, message: "File not found" });
   }

@@ -1,4 +1,5 @@
 import type { Severity, ReportStatus } from "../../prisma/db";
+import type { Prisma } from "../../prisma/generated/client";
 import { prisma } from "../../prisma/db";
 import { notify } from "../notifications";
 
@@ -46,7 +47,7 @@ export async function createReport(data: CreateReportData) {
         affectedAsset: data.affectedAsset || null,
         assetUrl: data.assetUrl || null,
         impact: data.impact || null,
-        attachments: data.attachments || [],
+        attachments: (data.attachments || []) as unknown as Prisma.InputJsonValue,
         isUnlisted: data.isUnlisted || false,
         targetName: data.targetName || null,
         targetUrl: data.targetUrl || null,

@@ -80,6 +80,8 @@ interface Admin {
 }
 
 const { busy, err, run } = useApi();
+type AdminRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as AdminRequest;
 
 const form = reactive({ user: "", programId: "" });
 const admins = ref<Admin[]>([]);
@@ -98,8 +100,9 @@ watch(
 );
 
 async function add() {
+  const endpoint: string = "/api/admin/program-admins";
   const res = await run(() =>
-    $fetch("/api/admin/program-admins", {
+    request(endpoint, {
       method: "POST",
       body: { emailOrUsername: form.user, programId: form.programId },
     }),
@@ -113,7 +116,7 @@ async function add() {
 }
 
 async function remove(userId: string, programId: string) {
-  await $fetch(`/api/admin/program-admins/${userId}/${programId}`, { method: "DELETE" });
+  await request(`/api/admin/program-admins/${userId}/${programId}`, { method: "DELETE" });
   await load();
 }
 </script>

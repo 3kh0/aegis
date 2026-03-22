@@ -6,8 +6,8 @@
     </div>
     <p class="text-xs text-gray-500">Screenshots, videos, or PoC files (max 10MB each)</p>
 
-    <div class="border-2 border-dashed border-border hover:border-accent/25 transition-colors p-6 text-center cursor-pointer" :class="{ 'border-accent bg-accent/5': drag }" @click="$refs.inp.click()" @dragover.prevent="drag = true" @dragleave.prevent="drag = false" @drop.prevent="drop">
-      <input ref="inp" type="file" multiple :accept="ACCEPT" class="hidden" @change="sel" />
+    <div class="border-2 border-dashed border-border hover:border-accent/25 transition-colors p-6 text-center cursor-pointer" :class="{ 'border-accent bg-accent/5': drag }" @click="openPicker" @dragover.prevent="drag = true" @dragleave.prevent="drag = false" @drop.prevent="drop">
+      <input ref="inputRef" type="file" multiple :accept="ACCEPT" class="hidden" @change="sel" />
       <Icon name="tabler:upload" size="32px" class="text-gray-500 mx-auto mb-2" />
       <p class="text-gray-400 text-sm">Drop files here or click to upload</p>
     </div>
@@ -49,15 +49,25 @@ interface File {
   size: number;
 }
 
-const props = defineProps<{ modelValue: File[] }>();
+const props = defineProps<{ modelValue?: File[] }>();
 const emit = defineEmits<{ "update:modelValue": [File[]] }>();
 
-const files = computed({ get: () => props.modelValue, set: (v) => emit("update:modelValue", v) });
+const inputRef = ref<HTMLInputElement | null>(null);
+type UploadRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as UploadRequest;
+const files = computed({
+  get: () => props.modelValue ?? [],
+  set: (v: File[]) => emit("update:modelValue", v),
+});
 const total = computed(() => files.value.reduce((s, f) => s + f.size, 0));
 
 const drag = ref(false);
 const busy = ref(false);
 const err = ref("");
+
+function openPicker() {
+  inputRef.value?.click();
+}
 
 const sel = (e: Event) => {
   const t = e.target as HTMLInputElement;
@@ -98,8 +108,9 @@ async function up(list: globalThis.File[]) {
 
 async function del(i: number) {
   const f = files.value[i];
+  if (!f) return;
   try {
-    await $fetch("/api/upload", { method: "DELETE", body: { key: f.url } });
+    await request("/api/upload", { method: "DELETE", body: { key: f.url } });
   } catch {
     /* ignore delete fails */
   }

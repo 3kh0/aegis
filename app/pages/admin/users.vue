@@ -100,6 +100,8 @@ interface User {
 }
 
 const { busy, err, run } = useApi();
+type UserRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as UserRequest;
 
 const q = ref("");
 const users = ref<User[]>([]);
@@ -120,7 +122,7 @@ async function search() {
 async function setVerified(u: User, v: boolean) {
   updating.value = u.id;
   try {
-    const res = await $fetch<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { verified: v } });
+    const res = await request<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { verified: v } });
     Object.assign(u, res);
   } finally {
     updating.value = null;
@@ -130,7 +132,7 @@ async function setVerified(u: User, v: boolean) {
 async function promote(u: User) {
   updating.value = u.id;
   try {
-    const res = await $fetch<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { role: "GLOBAL_ADMIN" } });
+    const res = await request<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { role: "GLOBAL_ADMIN" } });
     Object.assign(u, res);
   } finally {
     updating.value = null;
@@ -140,7 +142,7 @@ async function promote(u: User) {
 async function demote(u: User) {
   updating.value = u.id;
   try {
-    const res = await $fetch<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { role: "USER" } });
+    const res = await request<User>(`/api/admin/users/${u.id}`, { method: "PATCH", body: { role: "USER" } });
     Object.assign(u, res);
   } finally {
     updating.value = null;
@@ -160,7 +162,7 @@ async function block() {
   if (!u) return;
   updating.value = u.id;
   try {
-    const res = await $fetch<{ blockedUntil: string; reason: string }>(`/api/admin/users/${u.id}/block`, {
+    const res = await request<{ blockedUntil: string; reason: string }>(`/api/admin/users/${u.id}/block`, {
       method: "POST",
       body: { duration: blockDays.value, reason: blockReasonInput.value },
     });
@@ -175,7 +177,7 @@ async function block() {
 async function unblock(u: User) {
   updating.value = u.id;
   try {
-    await $fetch(`/api/admin/users/${u.id}/block`, { method: "DELETE" });
+    await request(`/api/admin/users/${u.id}/block`, { method: "DELETE" });
     u.blockedUntil = null;
     u.blockReason = null;
   } finally {

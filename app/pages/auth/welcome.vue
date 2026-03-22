@@ -44,6 +44,8 @@ definePageMeta({
 
 const { user, fetch: refresh } = useUserSession();
 const { busy, err, run } = useApi();
+type WelcomeRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as WelcomeRequest;
 
 if (user.value?.username) navigateTo("/dashboard");
 
@@ -53,7 +55,7 @@ const ok = ref(false);
 
 async function submit() {
   const res = await run(() =>
-    $fetch("/api/auth/set-username", {
+    request("/api/auth/set-username", {
       method: "POST",
       body: { username: name.value },
     }),

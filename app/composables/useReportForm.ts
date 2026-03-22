@@ -25,11 +25,15 @@ export const reportFormSchema = z.object({
 });
 
 export type ReportFormData = z.infer<typeof reportFormSchema>;
+type ReportFormState = Omit<ReportFormData, "attachments" | "severity"> & {
+  attachments: FileInfo[];
+  severity: ReportFormData["severity"] | "";
+};
 
 export function useReportForm(programId?: string | null, isUnlisted = false) {
   const { busy, err, run } = useApi();
 
-  const form = reactive<ReportFormData>({
+  const form = reactive<ReportFormState>({
     title: "",
     severity: "",
     affectedAsset: "",
@@ -45,7 +49,7 @@ export function useReportForm(programId?: string | null, isUnlisted = false) {
 
   const errors = ref<Record<string, string>>({});
 
-  function validate(): boolean {
+  function validate(): ReportFormData | null {
     errors.value = {};
     const result = reportFormSchema.safeParse(form);
     if (!result.success) {
@@ -53,22 +57,22 @@ export function useReportForm(programId?: string | null, isUnlisted = false) {
         const field = issue.path[0] as string;
         errors.value[field] = issue.message;
       }
-      return false;
+      return null;
     }
-    return true;
+    return result.data;
   }
 
   async function submit(): Promise<{ id: string } | null> {
-    if (!validate()) return null;
+    const payload = validate();
+    if (!payload) return null;
+    const endpoint: string = "/api/reports";
 
-    const res = await run(() =>
-      $fetch("/api/reports", {
+    return run(() =>
+      $fetch<{ id: string }>(endpoint, {
         method: "POST",
-        body: form,
+        body: payload,
       }),
     );
-
-    return res as { id: string } | null;
   }
 
   return {

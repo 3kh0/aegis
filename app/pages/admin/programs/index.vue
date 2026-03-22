@@ -103,6 +103,8 @@ interface Program {
 }
 
 const { busy, err, run } = useApi();
+type ProgramRequest = <T>(url: string, options?: { method?: string; body?: unknown }) => Promise<T>;
+const request = $fetch as ProgramRequest;
 
 const form = reactive({
   title: "",
@@ -129,7 +131,7 @@ function reset() {
 
 async function save() {
   const res = await run(async () => {
-    return $fetch("/api/programs", { method: "POST", body: form });
+    return request("/api/programs", { method: "POST", body: form });
   });
 
   if (res) {
