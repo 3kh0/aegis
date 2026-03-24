@@ -39,7 +39,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@iconify-json/tabler": "^1.2.31",
+    "@iconify-json/tabler": "^1.2.32",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.1"
   },
