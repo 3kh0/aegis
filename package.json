@@ -24,7 +24,7 @@
     "@nuxt/icon": "^2.2.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
-    "@sentry/nuxt": "^10.45.0",
+    "@sentry/nuxt": "^10.46.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/nprogress": "^0.2.3",
     "eslint": "^10.1.0",
