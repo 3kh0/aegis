@@ -2,6 +2,8 @@
 
 A bug bounty platform for all [Hack Club](https://hackclub.com) programs. Think HackerOne, but with more teenagers and fewer corporate suits.
 
+Please note that the repo has moved over to [hackclub/aegis](https://github.com/hackclub/aegis) and this is no longer the main repo. The old one will be archived soon.
+
 ## What is this?
 
 Aegis lets security researchers (that's you, hopefully) submit bug reports for Hack Club projects. Found a vulnerability? Report it. Get glory. Maybe even a nice wad of cash.
