@@ -34,7 +34,7 @@
     "nuxt-auth-utils": "^0.5.29",
     "prisma": "^7.5.0",
     "tailwindcss": "^4.2.2",
-    "vue": "^3.5.30",
+    "vue": "^3.5.31",
     "vue-router": "^5.0.4",
     "zod": "^4.3.6"
   },
